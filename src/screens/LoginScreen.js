@@ -1,42 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  Button,
   ImageBackground,
   Image,
   StyleSheet,
   TouchableOpacity,
-  Linking,
 } from "react-native";
-import { AuthContext } from "../context/AuthContext";
 import WebViewModal from "../components/WebViewModal";
 
-const config = {
-  clientId: "126fd50e9623fb78609b4bf0-408fe89c0088f404ea3c8f76add3f081",
-  clientSecret:
-    "ZjUzMDJjY2M2YTk1YmI1ZjI1MDBmMmUyY2U0OWRkZTMyNDFjODNmMDI1YjVlNzhjNzc3Njg5MWVhMDBlZDg2ZmJiZGY0ZTA4MjlmMDIwZjM4NGYzZmQxNTMwNDBiMDk4ODkyMGExOTIwNzMxYjVkMDgxYmQxM2QwOGRhZGEwZDE=", // Optional if using a public client
-  redirectUri: "https://consumer.energy.mn/auth/callback", // Your app's redirect URI
-  authorizationEndpoint: "https://sso.gov.mn/oauth2/authorize",
-  tokenEndpoint: "https://sso.gov.mn/oauth2/token",
-  scopes: [
-    "W3sic2VydmljZXMiOiBbIldTMTAwMTAxX2dldENpdGl6ZW5JRENhcmRJbmZvIl0sICJ3c2RsIjogImh0dHBzOi8veHlwLmdvdi5tbi9jaXRpemVuLTEuMy4wL3dzP1dTREwifV0=",
-  ], // Scopes your app needs
-};
-
-const generateAuthUrl = () => {
-  const params = new URLSearchParams({
-    client_id: config.clientId,
-    redirect_uri: config.redirectUri,
-    response_type: "code",
-    scope: config.scopes,
-    state: "",
-  });
-  return `${config.authorizationEndpoint}?${params.toString()}`;
-};
-
 const Login = () => {
-  const { login } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
   const openModal = () => {
@@ -45,16 +18,6 @@ const Login = () => {
 
   const closeModal = () => {
     setModalVisible(false);
-  };
-
-  const handleLoginOrg = () => {
-    login();
-  };
-
-  const [authState, setAuthState] = useState(null);
-
-  const handleLogin = () => {
-    Linking.openURL(generateAuthUrl());
   };
 
   return (
@@ -77,7 +40,7 @@ const Login = () => {
         </View>
         <Text style={styles.title}>Өргөдөл, гомдлын цахим систем</Text>
         <TouchableOpacity style={styles.button} onPress={openModal}>
-          <Text style={styles.buttonText}>Иргэн</Text>
+          <Text style={styles.buttonText}>Нэвтрэх</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.button} onPress={openModal}>
           <Text style={styles.buttonText}>Байгууллага</Text>

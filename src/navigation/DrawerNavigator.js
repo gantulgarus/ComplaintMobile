@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const state = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   return (
     <Drawer.Navigator
       initialRouteName="Drawer Home"
@@ -31,7 +31,7 @@ const DrawerNavigator = () => {
                 alignItems: "center",
               }}>
               <Image
-                source={require("../../assets/images/person.png")}
+                source={{ uri: "data:image/png;base64," + user?.image }}
                 style={{
                   height: 100,
                   width: 100,
@@ -45,7 +45,7 @@ const DrawerNavigator = () => {
                   fontWeight: "bold",
                   marginBottom: 6,
                 }}>
-                Gantulga
+                {user?.firstname}
               </Text>
               <Text
                 style={{

@@ -1,19 +1,42 @@
 // WebViewModal.js
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { isEmpty } from "lodash";
 import axios from "axios";
 import qs from "qs";
-import { View, Modal, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Modal,
+  Button,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { WebView } from "react-native-webview";
 import { AuthContext } from "../context/AuthContext";
+import { generateRandomString } from "../utils/Helper";
 
 const objectToUrl = (obj) => {
   return qs.stringify(obj);
 };
 
-const WebViewModal = ({ visible, onClose, initialUrl }) => {
+const WebViewModal = ({ visible, onClose }) => {
   const { setUser, login } = useContext(AuthContext);
-  const [currentUrl, setCurrentUrl] = useState(initialUrl);
+  const [randomString, setRandomString] = useState("");
+  const [uri, setUri] = useState("");
+
+  useEffect(() => {
+    if (visible) {
+      handleGenerateString();
+    }
+  }, [visible]);
+
+  const handleGenerateString = () => {
+    const newString = generateRandomString(40);
+    setRandomString(newString);
+    setUri(
+      `https://sso.gov.mn/login?next=%2Foauth2%2Fauthorize%3Fclient_id%3D126fd50e9623fb78609b4bf0-408fe89c0088f404ea3c8f76add3f081%26redirect_uri%3Dhttps%253A%252F%252Fconsumer.energy.mn%252Fauth%252Fcallback%26scope%3DW3sic2VydmljZXMiOiBbIldTMTAwMTAxX2dldENpdGl6ZW5JRENhcmRJbmZvIl0sICJ3c2RsIjogImh0dHBzOi8veHlwLmdvdi5tbi9jaXRpemVuLTEuMy4wL3dzP1dTREwifV0%253D%26response_type%3Dcode%26state=${newString}`
+    );
+  };
+  //   console.log(uri);
 
   const getUserDataEmongolia = async (code) => {
     const obj = {
@@ -52,51 +75,58 @@ const WebViewModal = ({ visible, onClose, initialUrl }) => {
           dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
             ?.response;
         // console.log("converted=", res);
-        setUser(res);
-        login();
+        // setUser(res);
+        login(res);
+        onClose(); // Close the modal after successful login
       }
     } catch (error) {
       console.error("Error:", error);
-      this._hide();
+      onClose(); // Close the modal in case of an error
     }
   };
 
   return (
-    <Modal visible={visible} transparent={true} animationType="slide">
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <WebView
-            source={{
-              uri: "https://sso.gov.mn/login?next=%2Foauth2%2Fauthorize%3Fclient_id%3D126fd50e9623fb78609b4bf0-408fe89c0088f404ea3c8f76add3f081%26redirect_uri%3Dhttps%253A%252F%252Fconsumer.energy.mn%252Fauth%252Fcallback%26scope%3DW3sic2VydmljZXMiOiBbIldTMTAwMTAxX2dldENpdGl6ZW5JRENhcmRJbmZvIl0sICJ3c2RsIjogImh0dHBzOi8veHlwLmdvdi5tbi9jaXRpemVuLTEuMy4wL3dzP1dTREwifV0%253D%26response_type%3Dcode%26state=",
-            }}
-            startInLoadingState={true}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            onNavigationStateChange={(state) => {
-              if (
-                state.url.indexOf("https://consumer.energy.mn/auth/callback") ==
-                0
-              ) {
-                var code = /\?code=(.+)&expires/.exec(state.url);
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <WebView
+                source={{
+                  uri: uri,
+                }}
+                startInLoadingState={true}
+                javaScriptEnabled={true}
+                domStorageEnabled={true}
+                onNavigationStateChange={(state) => {
+                  if (
+                    state.url.indexOf(
+                      "https://consumer.energy.mn/auth/callback"
+                    ) === 0
+                  ) {
+                    var code = /\?code=(.+)&expires/.exec(state.url);
 
-                if (!isEmpty(code) && !isEmpty(code[0])) {
-                  console.log(code);
-                  getUserDataEmongolia(code);
-                  onClose();
-                } else {
-                  //   this._hide();
-                }
-              }
-            }}
-          />
+                    if (!isEmpty(code) && !isEmpty(code[0])) {
+                      getUserDataEmongolia(code);
+                      onClose();
+                    }
+                  }
+                }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
