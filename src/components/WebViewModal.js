@@ -69,13 +69,14 @@ const WebViewModal = ({ visible, onClose }) => {
           timeout: 30000,
         }
       );
-
+      // console.log("ResData==", dataResponse.data);
       if (dataResponse.data) {
         const res =
           dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
             ?.response;
         // console.log("converted=", res);
-        // setUser(res);
+
+        setUser(res);
         login(res);
         onClose(); // Close the modal after successful login
       }

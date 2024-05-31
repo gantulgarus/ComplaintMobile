@@ -24,10 +24,11 @@ export const AuthProvider = (props) => {
   }, []);
 
   const login = async (userData) => {
-    // setIsLoggedIn(true);
+    setIsLoggedIn(true);
+    // console.log("userLoginData: ", userData);
     try {
       await AsyncStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
+      // setUser(userData);
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Failed to save user data:", error);
@@ -35,8 +36,13 @@ export const AuthProvider = (props) => {
   };
 
   const logout = async () => {
-    setUser(null);
-    setIsLoggedIn(false);
+    try {
+      await AsyncStorage.removeItem("user");
+      setUser(null);
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error("Failed to save user data:", error);
+    }
   };
 
   return (

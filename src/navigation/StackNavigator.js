@@ -12,9 +12,10 @@ const Stack = createNativeStackNavigator();
 const StackNavigator = () => {
   const state = useContext(AuthContext);
   console.log("isLoggedIn: ", state.isLoggedIn);
+  console.log("user: ", state.user?.firstname);
 
   // Use the inactivity timer
-  useInactivityTimer(state.logout, 600000); // 300000 ms = 5 minutes
+  // useInactivityTimer(state.logout, 3600000); // 300000 ms = 5 minutes
 
   return (
     <Stack.Navigator>

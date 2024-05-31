@@ -6,23 +6,24 @@ import FeatherIcon from "react-native-vector-icons/Feather";
 const FormText = (props) => {
   return (
     <View>
-      <Text style={{ fontSize: 16, paddingTop: 35, color: formTextColor }}>
+      <Text style={{ fontSize: 16, paddingTop: 15, color: formTextColor }}>
         {props.label}
       </Text>
       <View
         style={{
           flexDirection: "row",
           marginTop: 10,
-          borderBottomColor: "#f2f2f2",
-          borderBottomWidth: 1,
-          paddingBottom: 5,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+          borderRadius: 10,
+          backgroundColor: "#EAF0F1",
         }}>
         <FeatherIcon name={props.icon} size={20} color={formTextColor} />
         <TextInput
           {...props}
           style={{
             flex: 1,
-            paddingLeft: 10,
+            paddingLeft: 3,
             color: formTextColor,
             marginTop: Platform.OS === "ios" ? 0 : -3,
             ...props.style,

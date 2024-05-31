@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   return (
     <Drawer.Navigator
       initialRouteName="Drawer Home"
@@ -68,7 +68,7 @@ const DrawerNavigator = () => {
         },
         drawerActiveBackgroundColor: "#e0e7ff",
         drawerActiveTintColor: "red",
-        // headerShown: false,
+        headerShown: false,
         drawerLabelStyle: {
           color: "#000",
           fontSize: 14,
@@ -94,7 +94,7 @@ const DrawerNavigator = () => {
         options={{
           drawerLabel: "Холбоо барих",
           title: "Холбоо барих",
-          headerShadowVisible: false,
+          // headerShadowVisible: false,
           drawerIcon: () => (
             <MaterialIcon name="contacts" size={24} color="#3730a3" />
           ),
@@ -103,11 +103,11 @@ const DrawerNavigator = () => {
       <Drawer.Screen
         name="Гарах"
         component={Text}
-        listeners={() => state.logout()}
+        listeners={logout}
         options={{
           drawerLabel: "Гарах",
           title: "Гарах",
-          headerShadowVisible: false,
+          // headerShadowVisible: false,
           drawerIcon: () => (
             <MaterialIcon name="logout" size={24} color="#3730a3" />
           ),

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext } from "react";
 import axios from "axios";
 import { StyleSheet, View, FlatList, TextInput } from "react-native";
 import ComplaintItem from "../components/ComplaintItem";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import EmptyData from "../components/EmptyData";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ComplaintListScreen = () => {
   const [input, setInput] = useState("");
@@ -44,38 +45,40 @@ const ComplaintListScreen = () => {
   }, [input, complaints]);
   // console.log(filteredRows);
   return (
-    <View style={styles.container}>
-      <View style={styles.searchWrapper}>
-        <View style={styles.search}>
-          <View style={styles.searchIcon}>
-            <FeatherIcon color="#848484" name="search" size={17} />
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <View style={styles.searchWrapper}>
+          <View style={styles.search}>
+            <View style={styles.searchIcon}>
+              <FeatherIcon color="#848484" name="search" size={17} />
+            </View>
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+              onChangeText={(val) => setInput(val)}
+              placeholder="Хайх.."
+              placeholderTextColor="#848484"
+              returnKeyType="done"
+              style={styles.searchControl}
+              value={input}
+            />
           </View>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-            onChangeText={(val) => setInput(val)}
-            placeholder="Хайх.."
-            placeholderTextColor="#848484"
-            returnKeyType="done"
-            style={styles.searchControl}
-            value={input}
-          />
         </View>
+        {filteredRows.length > 0 ? (
+          <FlatList
+            data={filteredRows}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => <ComplaintItem complaint={item} />}
+          />
+        ) : (
+          <EmptyData
+            message="Мэдээлэл олдсонгүй"
+            imageSource={require("../../assets/images/empty-folder.png")}
+          />
+        )}
       </View>
-      {filteredRows.length > 0 ? (
-        <FlatList
-          data={filteredRows}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <ComplaintItem complaint={item} />}
-        />
-      ) : (
-        <EmptyData
-          message="Мэдээлэл олдсонгүй"
-          imageSource={require("../../assets/images/empty-folder.png")}
-        />
-      )}
-    </View>
+    </SafeAreaView>
   );
 };
 
