@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -42,9 +42,6 @@ const Login = () => {
         <TouchableOpacity style={styles.button} onPress={openModal}>
           <Text style={styles.buttonText}>Нэвтрэх</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.button} onPress={openModal}>
-          <Text style={styles.buttonText}>Байгууллага</Text>
-        </TouchableOpacity> */}
       </ImageBackground>
       <WebViewModal visible={modalVisible} onClose={closeModal} />
     </View>

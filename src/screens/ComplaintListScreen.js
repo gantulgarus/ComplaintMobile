@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
 import axios from "axios";
-import { StyleSheet, View, FlatList, TextInput } from "react-native";
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  TextInput,
+  StatusBar,
+  ActivityIndicator,
+} from "react-native";
 import ComplaintItem from "../components/ComplaintItem";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import EmptyData from "../components/EmptyData";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthContext } from "../context/AuthContext";
+import { mainBgColor, mainColor } from "../../Constants";
+import useComplaint from "../hooks/useComplaint";
 
-const ComplaintListScreen = () => {
+const ComplaintListScreen = (props) => {
+  const { user, token } = useContext(AuthContext);
   const [input, setInput] = useState("");
-  const [complaints, setComplaints] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get("http://192.168.0.82:8000/api/complaints")
-      .then((result) => {
-        console.log("data amjilttai tatlaa");
-        setComplaints(result.data.data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const [complaints, errorMessage, loading] = useComplaint();
 
   const filteredRows = useMemo(() => {
     const rows = [];
@@ -43,9 +44,10 @@ const ComplaintListScreen = () => {
 
     return rows.sort((a, b) => a.index - b.index);
   }, [input, complaints]);
+
   // console.log(filteredRows);
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: mainBgColor }}>
       <View style={styles.container}>
         <View style={styles.searchWrapper}>
           <View style={styles.search}>
@@ -65,7 +67,18 @@ const ComplaintListScreen = () => {
             />
           </View>
         </View>
-        {filteredRows.length > 0 ? (
+        {errorMessage && (
+          <Text style={{ marginHorizontal: 20, color: "red" }}>
+            {errorMessage}
+          </Text>
+        )}
+        {loading ? (
+          <ActivityIndicator size="large" color={mainColor} />
+        ) : errorMessage ? (
+          <Text style={{ marginHorizontal: 20, color: "red" }}>
+            {errorMessage}
+          </Text>
+        ) : filteredRows.length > 0 ? (
           <FlatList
             data={filteredRows}
             keyExtractor={(item) => item.id.toString()}
@@ -73,7 +86,7 @@ const ComplaintListScreen = () => {
           />
         ) : (
           <EmptyData
-            message="Мэдээлэл олдсонгүй"
+            message="Мэдээлэл хоосон байна"
             imageSource={require("../../assets/images/empty-folder.png")}
           />
         )}
@@ -92,14 +105,15 @@ const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: "#fff",
     borderRadius: 10,
+    marginHorizontal: 5,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
   },
   searchWrapper: {
     paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderColor: "#efefef",
+    // borderBottomWidth: 1,
+    // borderColor: "#efefef",
   },
   searchIcon: {
     position: "absolute",

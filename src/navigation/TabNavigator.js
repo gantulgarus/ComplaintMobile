@@ -39,7 +39,7 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Гомдол"
+        name="ComplaintListScreen"
         component={ComplaintListScreen}
         options={{
           tabBarLabel: "",

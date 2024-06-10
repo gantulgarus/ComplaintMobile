@@ -33,14 +33,14 @@ export default function ProfileScreen() {
                 style={styles.profile}>
                 <Image
                   alt="Profile"
-                  source={{ uri: "data:image/png;base64," + user?.image }}
+                  source={{ uri: "data:image/png;base64," + user?.danImage }}
                   style={styles.profileAvatar}
                 />
                 <View style={styles.profileBody}>
                   <Text style={styles.profileName}>
-                    {user?.lastname} {user?.firstname}
+                    {user?.danLastname} {user?.danFirstname}
                   </Text>
-                  <Text style={styles.profileHandle}>john.doe@mail.com</Text>
+                  <Text style={styles.profileHandle}>{user?.email}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -52,42 +52,44 @@ export default function ProfileScreen() {
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>Овог</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.lastname}</Text>
+                  <Text style={styles.rowValue}>{user?.danLastname}</Text>
                 </View>
               </View>
               <View style={styles.rowWrapper}>
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>Нэр</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.firstname}</Text>
+                  <Text style={styles.rowValue}>{user?.danFirstname}</Text>
                 </View>
               </View>
               <View style={styles.rowWrapper}>
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>Регистрийн дугаар</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.regnum}</Text>
+                  <Text style={styles.rowValue}>{user?.danRegnum}</Text>
                 </View>
               </View>
               <View style={styles.rowWrapper}>
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>УБ/Орон нутаг</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.aimagCityName}</Text>
+                  <Text style={styles.rowValue}>{user?.danAimagCityName}</Text>
                 </View>
               </View>
               <View style={styles.rowWrapper}>
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>Сум/Дүүрэг</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.soumDistrictName}</Text>
+                  <Text style={styles.rowValue}>
+                    {user?.danSoumDistrictName}
+                  </Text>
                 </View>
               </View>
               <View style={styles.rowWrapper}>
                 <View style={styles.row}>
                   <Text style={styles.rowLabel}>Баг/Хороо</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>{user?.bagKhorooName}</Text>
+                  <Text style={styles.rowValue}>{user?.danBagKhorooName}</Text>
                 </View>
               </View>
             </View>
@@ -103,7 +105,7 @@ export default function ProfileScreen() {
                   style={styles.row}>
                   <Text style={styles.rowLabel}>Имэйл</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>john.doe@mail.com</Text>
+                  <Text style={styles.rowValue}>{user?.email}</Text>
                   <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
                 </TouchableOpacity>
               </View>
@@ -115,7 +117,7 @@ export default function ProfileScreen() {
                   style={styles.row}>
                   <Text style={styles.rowLabel}>Утас</Text>
                   <View style={styles.rowSpacer} />
-                  <Text style={styles.rowValue}>99059045</Text>
+                  <Text style={styles.rowValue}>{user?.phone}</Text>
                   <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
                 </TouchableOpacity>
               </View>

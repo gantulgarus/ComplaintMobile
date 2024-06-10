@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useContext, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { mainColor, formTextColor } from "../../Constants";
 import FormText from "../components/FormText";
 import * as Animatable from "react-native-animatable";
@@ -18,14 +19,23 @@ import useComplaintTypeSummary from "../hooks/useComplaintTypeSummary";
 import useOrganization from "../hooks/useOrganization";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import FormRadioButton from "../components/FormRadioButton";
+import useComplaint from "../hooks/useComplaint";
 
 const CreateComplaintScreen = (props) => {
-  const { user } = useContext(AuthContext);
-  const [categories, errorMessage, loading] = useCategory();
+  const { user, token } = useContext(AuthContext);
+  const [complaints, errorMessage, loading, addComplaint] = useComplaint();
+  const [categories] = useCategory();
   const [complaintType] = useComplaintType();
   const [complaintTypeSummary] = useComplaintTypeSummary();
   const [organizations] = useOrganization();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [filteredOrganizations, setFilteredOrganizations] = useState([]);
+  const [filteredSummary, setFilteredSummary] = useState([]);
+  const [resetPicker, setResetPicker] = useState(false);
+  const navigation = useNavigation();
+
+  // console.log("organizations: ", organizations);
 
   const initialUserData = {
     lastname: "",
@@ -35,22 +45,13 @@ const CreateComplaintScreen = (props) => {
     district: "",
     khoroo: "",
     addressDetail: "",
+    created_user_id: "",
+    phone: "",
+    email: "",
   };
 
   const [userData, setUserData] = useState(initialUserData);
   // console.log("user====", user);
-
-  useEffect(() => {
-    setUserData({
-      lastname: user.lastname,
-      firstname: user.firstname,
-      registerNumber: user.regnum,
-      country: user.aimagCityName,
-      district: user.soumDistrictName,
-      khoroo: user.bagKhorooName,
-      addressDetail: user.passportAddress,
-    });
-  }, [user]);
 
   const initialFormData = {
     category_id: "",
@@ -58,13 +59,10 @@ const CreateComplaintScreen = (props) => {
     complaint_type_summary_id: "",
     organization_id: "",
     complaint: "",
-    energy_type_id: 1,
-    phone: 99059045,
-    email: "adsf@mail.com",
+    energy_type_id: 1, // Эхлээд цахилгаан сонгогдсон байна
     status_id: 0, // Шинэ гомдол
     channel_id: 5, // Гар утас апп
     complaint_maker_type_id: 1, // Иргэн
-    created_user_id: 1,
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -77,29 +75,57 @@ const CreateComplaintScreen = (props) => {
     complaint: false,
   });
 
+  useEffect(() => {
+    setUserData({
+      lastname: user.danLastname,
+      firstname: user.danFirstname,
+      registerNumber: user.danRegnum,
+      country: user.danAimagCityName,
+      district: user.danSoumDistrictName,
+      khoroo: user.danBagKhorooName,
+      addressDetail: user.danPassportAddress,
+      created_user_id: user.id,
+      phone: user.phone != null ? user.phone : 0,
+      email: user.email != null ? user.email : "",
+    });
+    // Filter organizations based on energy_type_id
+    if (formData.energy_type_id) {
+      const filtered = organizations.filter(
+        (org) => org.plant_id == formData.energy_type_id
+      );
+      setFilteredOrganizations(filtered);
+      // console.log("=======", filteredOrganizations);
+    } else {
+      setFilteredOrganizations([]);
+    }
+
+    // Filter organizations based on energy_type_id
+    if (formData.energy_type_id && formData.complaint_type_id) {
+      const filtered = complaintTypeSummary.filter(
+        (item) =>
+          item.energy_type_id == formData.energy_type_id &&
+          item.complaint_type_id == formData.complaint_type_id
+      );
+      setFilteredSummary(filtered);
+      console.log("=======", filteredSummary);
+    } else {
+      setFilteredSummary([]);
+    }
+  }, [
+    user,
+    formData.energy_type_id,
+    formData.complaint_type_id,
+    organizations,
+  ]);
+
   const sendComplaint = () => {
     const allFormData = { ...userData, ...formData };
-    console.log("allFormData: ", allFormData);
-    axios
-      .post("http://192.168.0.82:8000/api/complaints", allFormData)
-      .then((result) => {
-        console.log(result.data.status);
-        const newComplaint = result.data.data;
-
-        setIsSubmitted(true);
-        setFormData(initialFormData);
-        setUserData(initialUserData);
-
-        props.navigation.navigate("ComplaintDetail", {
-          id: newComplaint.id,
-        });
-      })
-      .catch((err) => {
-        setIsSubmitted(true);
-        // console.log("Status: ", err.response.data.status);
-        console.log("Message: ", err.response.data.message);
-        console.log("Error: ", err.response.data.error);
-      });
+    // console.log("allFormData: ", allFormData);
+    addComplaint(allFormData);
+    resetForm();
+    setResetPicker(true);
+    navigation.navigate("ComplaintListScreen");
+    // props.navigation.navigate("ComplaintListScreen");
   };
 
   const checkComplaint = (text) => {
@@ -113,9 +139,22 @@ const CreateComplaintScreen = (props) => {
     });
   };
 
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setIsSubmitted(false);
+    setError({
+      category_id: false,
+      complaint_type_id: false,
+      complaint_type_summary_id: false,
+      organization_id: false,
+      complaint: false,
+    });
+    console.log("Form resetted...");
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: mainColor }}>
-      <StatusBar backgroundColor={mainColor} barStyle="dark-content" />
+      <StatusBar backgroundColor={mainColor} barStyle="light" />
       <View
         style={{
           flex: 1,
@@ -123,7 +162,9 @@ const CreateComplaintScreen = (props) => {
           paddingHorizontal: 20,
           backgroundColor: mainColor,
         }}>
-        <Text style={{ fontSize: 28, color: "white" }}>Шинэ гомдол илгээх</Text>
+        <Text style={{ fontSize: 28, color: "white" }}>
+          Өргөдөл, гомдол бүртгэх
+        </Text>
         <Text style={{ fontSize: 14, color: "white" }}>
           Та дэлгэрэнгүй мэдээллээ доор оруулна уу
         </Text>
@@ -140,6 +181,15 @@ const CreateComplaintScreen = (props) => {
           borderTopRightRadius: 30,
         }}>
         <ScrollView>
+          <FormRadioButton
+            label="Энергийн төрөл сонгоно уу:"
+            value={formData.energy_type_id}
+            // icon="layers"
+            onValueChange={(value, index) => {
+              console.log("energy id: ", value);
+              setFormData({ ...formData, energy_type_id: value });
+            }}
+          />
           <FormPicker
             label="Төрөл:"
             value={formData.category_id}
@@ -148,9 +198,10 @@ const CreateComplaintScreen = (props) => {
             data={categories.map((el) => el.name)}
             values={categories.map((el) => el.id)}
             onValueChange={(value, index) => {
-              console.log("id: ", value);
+              console.log("category_id: ", value);
               setFormData({ ...formData, category_id: value });
             }}
+            reset={resetPicker}
           />
           <FormPicker
             label="Гомдлын төрөл:"
@@ -160,30 +211,36 @@ const CreateComplaintScreen = (props) => {
             data={complaintType.map((el) => el.name)}
             values={complaintType.map((el) => el.id)}
             onValueChange={(value, index) => {
+              console.log("complaint_type_id: ", value);
               setFormData({ ...formData, complaint_type_id: value });
             }}
+            reset={resetPicker}
           />
           <FormPicker
             label="Гомдлын товч утга:"
             value={formData.complaint_type_summary_id}
             isSubmitted={isSubmitted}
             icon="layers"
-            data={complaintTypeSummary.map((el) => el.name)}
-            values={complaintTypeSummary.map((el) => el.id)}
+            data={filteredSummary.map((el) => el.name)}
+            values={filteredSummary.map((el) => el.id)}
             onValueChange={(value, index) => {
+              console.log("complaint_type_summary_id: ", value);
               setFormData({ ...formData, complaint_type_summary_id: value });
             }}
+            reset={resetPicker}
           />
           <FormPicker
             label="Холбогдох ТЗЭ:"
             value={formData.organization_id}
             isSubmitted={isSubmitted}
             icon="home"
-            data={organizations.map((el) => el.name)}
-            values={organizations.map((el) => el.id)}
+            data={filteredOrganizations.map((el) => el.name)}
+            values={filteredOrganizations.map((el) => el.id)}
             onValueChange={(value, index) => {
+              console.log("org_id: ", value);
               setFormData({ ...formData, organization_id: value });
             }}
+            reset={resetPicker}
           />
           <FormText
             label="Санал хүсэлт"

@@ -1,52 +1,77 @@
 import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { mainUrl } from "../../Constants";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [danuser, setDanuser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Add loading state
+
+  const login = () => {
+    // console.log("danuser====", danuser);
+    setLoading(true); // Set loading to true when login starts
+
+    axios
+      .post(`${mainUrl}/api/login`, danuser)
+      .then((result) => {
+        loginUserSuccessful(result.data.access_token, result.data.user);
+        setIsLoggedIn(true);
+      })
+      .catch((err) => {
+        setIsLoggedIn(false);
+        setError(err);
+        console.error("Failed to login:", err);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false when login completes
+      });
+  };
 
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = await AsyncStorage.getItem("user");
-        if (userData) {
-          setUser(JSON.parse(userData));
-          setIsLoggedIn(true);
-        }
-      } catch (error) {
-        console.error("Failed to load user data:", error);
-      }
-    };
+    if (danuser) {
+      login();
+    }
+  }, [danuser]); // Run the effect when danuser changes
 
-    loadUserData();
-  }, []);
-
-  const login = async (userData) => {
+  const loginUserSuccessful = async (token, user) => {
+    setToken(token);
+    setUser(user);
     setIsLoggedIn(true);
-    // console.log("userLoginData: ", userData);
     try {
-      await AsyncStorage.setItem("user", JSON.stringify(userData));
-      // setUser(userData);
-      setIsLoggedIn(true);
+      await AsyncStorage.setItem("userData", JSON.stringify({ token, user }));
     } catch (error) {
-      console.error("Failed to save user data:", error);
+      console.error("Утасруу дата хадгалж чадсангүй...", error);
     }
   };
 
   const logout = async () => {
-    try {
-      await AsyncStorage.removeItem("user");
-      setUser(null);
-      setIsLoggedIn(false);
-    } catch (error) {
-      console.error("Failed to save user data:", error);
-    }
+    await AsyncStorage.removeItem("userData");
+    setIsLoggedIn(false);
+    setToken(null);
+    setUser(null);
+    setDanuser(null);
+    console.log("User logout...");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout, user, setUser }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        login,
+        logout,
+        user,
+        setUser,
+        token,
+        error,
+        loading,
+        setDanuser,
+      }}>
       {props.children}
     </AuthContext.Provider>
   );

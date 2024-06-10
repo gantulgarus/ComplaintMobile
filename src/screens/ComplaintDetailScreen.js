@@ -6,15 +6,18 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Timeline from "../components/Timeline";
 import ImagePopup from "../components/ImagePopup";
 import { Audio } from "expo-av";
 import Divider from "../components/Divider";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { AuthContext } from "../context/AuthContext";
+import { mainBgColor, mainUrl } from "../../Constants";
 
 const ComplaintDetailScreen = ({ route }) => {
+  const { user, token } = useContext(AuthContext);
   const complaintId = route.params.id;
   const [complaint, setComplaint] = useState([]);
   const [steps, setSteps] = useState([]);
@@ -31,14 +34,24 @@ const ComplaintDetailScreen = ({ route }) => {
 
   useEffect(() => {
     axios
-      .get(`http://192.168.0.82:8000/api/complaints/${complaintId}`)
+      .get(`${mainUrl}/api/complaints/${complaintId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((result) => {
         // console.log("data amjilttai tatlaa", result.data.data);
         setComplaint(result.data.data);
       })
       .catch((err) => console.log(err));
     axios
-      .get(`http://192.168.0.82:8000/api/steps/${complaintId}`)
+      .get(`${mainUrl}/api/steps/${complaintId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((result) => {
         // console.log("data amjilttai tatlaa", result.data.data);
         setSteps(result.data.data);
@@ -51,8 +64,9 @@ const ComplaintDetailScreen = ({ route }) => {
   };
 
   return (
-    <View>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      {/* <CustomHeader title="Дэлгэрэнгүй" /> */}
+      <View style={styles.containerComplaint}>
         <View style={styles.info}>
           <Text style={styles.name}>
             {complaint.category} - №{complaint.serial_number}
@@ -94,7 +108,8 @@ export default ComplaintDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    flex: 1,
+    backgroundColor: mainBgColor,
   },
   info: {
     padding: 20,

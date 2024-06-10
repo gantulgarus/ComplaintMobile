@@ -11,11 +11,16 @@ const FormPicker = (props) => {
   // console.log("props.submit ", props.isSubmitted);
   // console.log("props.value ", props.value);
 
+  // useEffect(() => {
+  //   if (props.isSubmitted) {
+  //     setSelectedLabel("Сонгох");
+  //   }
+  // }, [props.isSubmitted]);
   useEffect(() => {
-    if (props.isSubmitted) {
+    if (props.reset) {
       setSelectedLabel("Сонгох");
     }
-  }, [props.isSubmitted]);
+  }, [props.reset]);
 
   const handleValueChange = (itemValue, itemIndex) => {
     setModalVisible(false);

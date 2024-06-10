@@ -10,16 +10,18 @@ const columnWidth = width * 0.2;
 
 const getStatusColor = (statusId) => {
   switch (statusId) {
+    case 0:
+      return "#4b5563";
     case 2:
-      return "orange";
+      return "#ea580c";
     case 3:
-      return "fuchsia";
+      return "#2563eb";
     case 4:
-      return "red";
+      return "#dc2626";
     case 6:
-      return "mediumblue";
+      return "#16a34a";
     default:
-      return "gray";
+      return "#4b5563";
   }
 };
 
@@ -66,15 +68,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    margin: 5,
     padding: 10,
     backgroundColor: "#fff",
     marginBottom: 10,
     borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   firstColumn: {
     // backgroundColor: "skyblue",

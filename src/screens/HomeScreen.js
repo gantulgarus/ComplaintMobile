@@ -2,36 +2,30 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   FlatList,
-  TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
-import Icon from "react-native-vector-icons/Ionicons";
+import React, { useContext } from "react";
 import ComplaintItem from "../components/ComplaintItem";
 import EmptyData from "../components/EmptyData";
 import { AuthContext } from "../context/AuthContext";
 import SquareItem from "../components/SquareItem";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
+import { mainColor } from "../../Constants";
+import useComplaint from "../hooks/useComplaint";
 
 const Home = ({ navigation }) => {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   // console.log("user====", user);
-  const [complaints, setComplaints] = useState([]);
+  const [complaints, errorMessage, loading] = useComplaint();
 
-  useEffect(() => {
-    axios
-      .get("http://192.168.0.82:8000/api/complaints")
-      .then((result) => {
-        console.log("data amjilttai tatlaa");
-        setComplaints(result.data.data);
-        // console.log(complaints);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  // Function to count complaints by status ID
+  const countComplaintsByStatusId = (statusId) => {
+    return complaints.filter((complaint) => complaint.status_id == statusId)
+      .length;
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -41,7 +35,7 @@ const Home = ({ navigation }) => {
           <View style={styles.summaryView}>
             <Text style={styles.summaryText}>Өнөөдрийн байдлаар танд</Text>
             <View style={styles.summaryRow}>
-              <Text style={styles.totalComplaints}>{26}</Text>
+              <Text style={styles.totalComplaints}>{complaints.length}</Text>
               <View>
                 <Text style={styles.summarySubText}>Нийт</Text>
                 <Text style={styles.summarySubText}>өргөдөл, гомдол</Text>
@@ -58,38 +52,63 @@ const Home = ({ navigation }) => {
 
         <View style={styles.containerStatus}>
           <SquareItem
-            number={1}
-            text={"Илгээсан"}
+            number={countComplaintsByStatusId(0)}
+            text={"Шинээр илгээсан"}
             backgroundColor="#fff"
-            textColor="orange"
-            iconColor="orange"
+            iconBackgroundColor="#f3f4f6"
+            textColor="#4b5563"
+            iconColor="#4b5563"
           />
           <SquareItem
-            number={2}
+            number={countComplaintsByStatusId(2)}
+            text={"Хүлээн авсан"}
+            backgroundColor="#fff"
+            iconBackgroundColor="#ffedd5"
+            textColor="#ea580c"
+            iconColor="#ea580c"
+          />
+          <SquareItem
+            number={countComplaintsByStatusId(3)}
             text={"Хяналтад байгаа"}
             backgroundColor="#fff"
-            textColor="fuchsia"
-            iconColor="fuchsia"
+            iconBackgroundColor="#dbeafe"
+            textColor="#2563eb"
+            iconColor="#2563eb"
           />
           <SquareItem
-            number={3}
+            number={countComplaintsByStatusId(6)}
             text={"Шийдвэрлэсэн"}
             backgroundColor="#fff"
-            textColor="mediumblue"
-            iconColor="mediumblue"
+            iconBackgroundColor="#dcfce7"
+            textColor="#16a34a"
+            iconColor="#16a34a"
           />
         </View>
 
         <View style={styles.recentComplaints}>
           <Text style={styles.sectionTitle}>Сүүлийн гомдлууд</Text>
-          {!!complaints ? (
+          {errorMessage && (
+            <Text style={{ marginHorizontal: 20, color: "red" }}>
+              {errorMessage}
+            </Text>
+          )}
+          {loading ? (
+            <ActivityIndicator size="large" color={mainColor} />
+          ) : errorMessage ? (
+            <Text style={{ marginHorizontal: 20, color: "red" }}>
+              {errorMessage}
+            </Text>
+          ) : complaints.length > 0 ? (
             <FlatList
               data={complaints}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => <ComplaintItem complaint={item} />}
             />
           ) : (
-            <EmptyData />
+            <EmptyData
+              message="Мэдээлэл хоосон байна"
+              imageSource={require("../../assets/images/empty-folder.png")}
+            />
           )}
         </View>
       </View>
@@ -103,7 +122,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    // backgroundColor: "#f8fafc",
   },
   header: {
     flexDirection: "row",
@@ -181,6 +200,7 @@ const styles = StyleSheet.create({
   },
   summarySubText: {
     fontSize: 14,
+    fontWeight: "bold",
     color: "white",
   },
   summaryImage: {

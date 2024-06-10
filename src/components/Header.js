@@ -32,7 +32,7 @@ const Header = ({ title, onPress, user }) => {
             fontSize: 17,
             fontWeight: "bold",
           }}>
-          Сайн байна уу {user?.firstname}
+          Сайн байна уу {user?.name}
         </Text>
         <Image
           resizeMode="cover"
@@ -41,7 +41,7 @@ const Header = ({ title, onPress, user }) => {
             height: 45,
             borderRadius: 60,
           }}
-          source={{ uri: "data:image/png;base64," + user?.image }}
+          source={{ uri: "data:image/png;base64," + user?.danImage }}
         />
       </View>
     </View>
@@ -55,8 +55,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginVertical: 20,
     marginHorizontal: 15,
+    backgroundColor: "#fff",
   },
   iconContainer: {
     height: 45,

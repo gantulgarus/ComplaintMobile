@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
+import { mainUrl } from "../../Constants";
 
 const useComplaintTypeSummary = () => {
+  const { token } = useContext(AuthContext);
   const [complaintTypeSummary, setComplaintTypeSummary] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -10,7 +13,12 @@ const useComplaintTypeSummary = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.82:8000/api/complaintTypeSummaries")
+      .get(`${mainUrl}/api/complaintTypeSummaries`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((result) => {
         setComplaintTypeSummary(result.data);
         setLoading(false);

@@ -31,7 +31,7 @@ const DrawerNavigator = () => {
                 alignItems: "center",
               }}>
               <Image
-                source={{ uri: "data:image/png;base64," + user?.image }}
+                source={{ uri: "data:image/png;base64," + user?.danImage }}
                 style={{
                   height: 100,
                   width: 100,
@@ -45,13 +45,13 @@ const DrawerNavigator = () => {
                   fontWeight: "bold",
                   marginBottom: 6,
                 }}>
-                {user?.firstname}
+                {user?.danFirstname}
               </Text>
               <Text
                 style={{
                   fontSize: 16,
                 }}>
-                Web Developer
+                {}
               </Text>
             </View>
             <DrawerItemList {...props} />

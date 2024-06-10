@@ -19,9 +19,9 @@ const objectToUrl = (obj) => {
 };
 
 const WebViewModal = ({ visible, onClose }) => {
-  const { setUser, login } = useContext(AuthContext);
-  const [randomString, setRandomString] = useState("");
+  const { login, setDanuser } = useContext(AuthContext);
   const [uri, setUri] = useState("");
+  const [authCode, setAuthCode] = useState(null);
 
   useEffect(() => {
     if (visible) {
@@ -29,14 +29,19 @@ const WebViewModal = ({ visible, onClose }) => {
     }
   }, [visible]);
 
+  useEffect(() => {
+    if (authCode) {
+      getUserDataEmongolia(authCode);
+    }
+  }, [authCode]);
+
   const handleGenerateString = () => {
     const newString = generateRandomString(40);
-    setRandomString(newString);
     setUri(
       `https://sso.gov.mn/login?next=%2Foauth2%2Fauthorize%3Fclient_id%3D126fd50e9623fb78609b4bf0-408fe89c0088f404ea3c8f76add3f081%26redirect_uri%3Dhttps%253A%252F%252Fconsumer.energy.mn%252Fauth%252Fcallback%26scope%3DW3sic2VydmljZXMiOiBbIldTMTAwMTAxX2dldENpdGl6ZW5JRENhcmRJbmZvIl0sICJ3c2RsIjogImh0dHBzOi8veHlwLmdvdi5tbi9jaXRpemVuLTEuMy4wL3dzP1dTREwifV0%253D%26response_type%3Dcode%26state=${newString}`
     );
   };
-  //   console.log(uri);
+  // console.log(uri);
 
   const getUserDataEmongolia = async (code) => {
     const obj = {
@@ -60,6 +65,8 @@ const WebViewModal = ({ visible, onClose }) => {
 
       const token = tokenResponse.data;
 
+      // console.log("token = ", token.access_token);
+
       const headers = { Authorization: "Bearer " + token.access_token };
 
       const dataResponse = await axios.get(
@@ -69,16 +76,12 @@ const WebViewModal = ({ visible, onClose }) => {
           timeout: 30000,
         }
       );
-      // console.log("ResData==", dataResponse.data);
       if (dataResponse.data) {
         const res =
           dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
             ?.response;
-        // console.log("converted=", res);
-
-        setUser(res);
-        login(res);
-        onClose(); // Close the modal after successful login
+        setDanuser(res);
+        console.log("Login start...");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -104,12 +107,13 @@ const WebViewModal = ({ visible, onClose }) => {
                 javaScriptEnabled={true}
                 domStorageEnabled={true}
                 onNavigationStateChange={(state) => {
+                  // console.log(state);
                   if (
                     state.url.indexOf(
                       "https://consumer.energy.mn/auth/callback"
                     ) === 0
                   ) {
-                    var code = /\?code=(.+)&expires/.exec(state.url);
+                    const code = /\?code=(.+)&expires/.exec(state.url);
 
                     if (!isEmpty(code) && !isEmpty(code[0])) {
                       getUserDataEmongolia(code);

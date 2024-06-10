@@ -7,17 +7,24 @@ const SquareItem = ({
   number,
   text,
   backgroundColor,
+  iconBackgroundColor,
   textColor,
   iconColor,
 }) => {
   return (
     <View style={[styles.squareContainer, { backgroundColor }]}>
-      <View style={styles.iconContainer}>
-        <Image
-          source={clockIcon}
-          style={[styles.icon, { tintColor: iconColor }]}
-        />
-        <Text style={[styles.number, { color: textColor }]}>{number}</Text>
+      <View style={styles.iconView}>
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: iconBackgroundColor },
+          ]}>
+          <Image
+            source={clockIcon}
+            style={[styles.icon, { tintColor: iconColor }]}
+          />
+        </View>
+        <Text style={[styles.number, { color: "#000" }]}>{number}</Text>
       </View>
       <Text style={[styles.text, { color: textColor }]}>{text}</Text>
     </View>
@@ -28,13 +35,13 @@ export default SquareItem;
 
 const styles = StyleSheet.create({
   squareContainer: {
-    width: 100,
-    height: 100,
-    backgroundColor: "#fff",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: 90,
     borderRadius: 10,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    margin: 10,
+    margin: 5,
     padding: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -42,25 +49,33 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  iconContainer: {
+  iconView: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
   },
+  iconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 20, // Half of width and height to make it a circle
+    justifyContent: "center",
+    alignItems: "center",
+  },
   icon: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
+    width: 16,
+    height: 16,
   },
   number: {
+    marginLeft: 10,
     fontSize: 24,
     fontWeight: "bold",
     color: "#000",
   },
   text: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
   },
 });
