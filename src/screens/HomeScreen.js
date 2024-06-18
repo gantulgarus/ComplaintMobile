@@ -6,7 +6,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import ComplaintItem from "../components/ComplaintItem";
 import EmptyData from "../components/EmptyData";
 import { AuthContext } from "../context/AuthContext";
@@ -15,17 +15,28 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { mainColor } from "../../Constants";
 import useComplaint from "../hooks/useComplaint";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Home = ({ navigation }) => {
   const { user, token } = useContext(AuthContext);
   // console.log("user====", user);
-  const [complaints, errorMessage, loading] = useComplaint();
+  const [refresh, setRefresh] = useState(false);
+  const [complaints, errorMessage, loading] = useComplaint(refresh, setRefresh);
 
   // Function to count complaints by status ID
   const countComplaintsByStatusId = (statusId) => {
     return complaints.filter((complaint) => complaint.status_id == statusId)
       .length;
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefresh(true);
+      return () => {
+        setRefresh(false);
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

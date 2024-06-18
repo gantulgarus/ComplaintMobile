@@ -13,13 +13,14 @@ export const AuthProvider = (props) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); // Add loading state
 
+  console.log("danuser====", danuser?.firstname);
   const login = () => {
-    // console.log("danuser====", danuser);
     setLoading(true); // Set loading to true when login starts
 
     axios
       .post(`${mainUrl}/api/login`, danuser)
       .then((result) => {
+        console.log("Login to rest api success");
         loginUserSuccessful(result.data.access_token, result.data.user);
         setIsLoggedIn(true);
       })

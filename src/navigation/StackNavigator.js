@@ -6,6 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import DrawerNavigator from "./DrawerNavigator";
 import LoginScreen from "../screens/LoginScreen";
 import ComplaintDetailScreen from "../screens/ComplaintDetailScreen";
+import CreateComplaintScreen from "../screens/CreateComplaintScreen";
 import { useInactivityTimer } from "../utils/useInactivityTimer";
 import CustomHeader from "../components/CustomHeader";
 
@@ -19,7 +20,7 @@ const StackNavigator = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator />
       </View>
     );
   }
@@ -28,7 +29,10 @@ const StackNavigator = () => {
   // useInactivityTimer(state.logout, 3600000); // 300000 ms = 5 minutes
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerBackTitle: "Буцах",
+      }}>
       {isLoggedIn ? (
         <>
           <Stack.Screen
@@ -40,6 +44,12 @@ const StackNavigator = () => {
             name="ComplaintDetail"
             component={ComplaintDetailScreen}
             options={{ title: "Дэлгэрэнгүй" }}
+            // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
+          />
+          <Stack.Screen
+            name="CreateComplaintStack"
+            component={CreateComplaintScreen}
+            options={{ title: "Өргөдөл, гомдол бүртгэх" }}
             // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
           />
         </>

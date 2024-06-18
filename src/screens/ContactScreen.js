@@ -1,38 +1,31 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect } from "react";
-import { View, ScrollView, Image, Text, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, ScrollView, Image, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import CustomHeader from "../components/CustomHeader";
 
 const ContactScreen = () => {
-  const navigation = useNavigation();
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.navigate("HomeTab")}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-      <ScrollView style={styles.container}>
+      <CustomHeader title="Холбоо барих" />
+      <ScrollView contentContainerStyle={styles.container}>
         <Image
           style={styles.image}
           source={require("../../assets/images/contact.jpg")}
         />
         <View style={styles.content}>
           <View style={styles.infoContainer}>
-            <Text style={styles.infoLabel}>Email:</Text>
-            <Text style={styles.infoValue}>jane.doe@example.com</Text>
+            <Text style={styles.infoLabel}>Имэйл:</Text>
+            <Text style={styles.infoValue}>info@erc.gov.mn</Text>
           </View>
           <View style={styles.infoContainer}>
-            <Text style={styles.infoLabel}>Location:</Text>
-            <Text style={styles.infoValue}>San Francisco, CA</Text>
+            <Text style={styles.infoLabel}>Утас:</Text>
+            <Text style={styles.infoValue}>976-11-320126</Text>
           </View>
           <View style={styles.infoContainer}>
-            <Text style={styles.infoLabel}>Bio:</Text>
+            <Text style={styles.infoLabel}>Хаяг:</Text>
             <Text style={styles.infoValue}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-              ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas
-              non massa sem. Etiam finibus odio quis feugiat facilisis.
+              Ж.Самбуугийн гудамж - 30, Бага тойруу, Сүхбаатар дүүрэг,
+              Улаанбаатар 14201
             </Text>
           </View>
         </View>
@@ -41,18 +34,49 @@ const ContactScreen = () => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    backgroundColor: "#f8f8f8",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e8e8e8",
+  },
+  backButton: {
+    padding: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    position: "absolute",
+    left: "50%",
+    transform: [{ translateX: -50 }],
+  },
+  headerSpacer: {
+    width: 64, // To balance the space occupied by the back button
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    alignItems: "center", // Center content horizontally
   },
   image: {
     height: 400,
     width: "100%",
-    aspectRatio: 1,
+    resizeMode: "cover",
   },
   content: {
-    padding: 20,
+    width: "90%",
+    paddingVertical: 20,
   },
   infoContainer: {
     marginTop: 20,
@@ -63,17 +87,6 @@ const styles = {
   infoValue: {
     marginTop: 5,
   },
-  backButton: {
-    margin: 10,
-    padding: 10,
-    backgroundColor: "#007BFF",
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-};
+});
 
 export default ContactScreen;

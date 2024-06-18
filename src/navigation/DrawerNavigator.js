@@ -12,6 +12,7 @@ import { AuthContext } from "../context/AuthContext";
 import TabNavigator from "./TabNavigator";
 import ContactScreen from "../screens/ContactScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FAQScreen from "../screens/FAQScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -89,14 +90,26 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
-        name="Холбоо барих"
+        name="Contact"
         component={ContactScreen}
         options={{
           drawerLabel: "Холбоо барих",
           title: "Холбоо барих",
-          // headerShadowVisible: false,
+          headerShadowVisible: false,
           drawerIcon: () => (
             <MaterialIcon name="contacts" size={24} color="#3730a3" />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="FAQ"
+        component={FAQScreen}
+        options={{
+          drawerLabel: "Түгээмэл асуулт",
+          title: "Түгээмэл асуулт",
+          headerShadowVisible: false,
+          drawerIcon: () => (
+            <MaterialIcon name="help" size={24} color="#3730a3" />
           ),
         }}
       />
@@ -107,11 +120,17 @@ const DrawerNavigator = () => {
         options={{
           drawerLabel: "Гарах",
           title: "Гарах",
-          // headerShadowVisible: false,
           drawerIcon: () => (
             <MaterialIcon name="logout" size={24} color="#3730a3" />
           ),
         }}
+        // listeners={{
+        //   // Use `beforeRemove` event to perform logout action
+        //   beforeRemove: (e) => {
+        //     e.preventDefault(); // Prevent the screen from being removed
+        //     logout(); // Call the logout function from AuthContext
+        //   },
+        // }}
       />
     </Drawer.Navigator>
   );

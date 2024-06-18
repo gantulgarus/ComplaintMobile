@@ -73,6 +73,14 @@ const BottomTabNavigator = () => {
             </View>
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Prevent default behavior
+            e.preventDefault();
+            // Navigate to CreateComplaintScreen without bottom tabs
+            navigation.navigate("CreateComplaintStack");
+          },
+        })}
       />
       <Tab.Screen
         name="Notification"

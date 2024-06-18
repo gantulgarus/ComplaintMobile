@@ -1,38 +1,56 @@
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 
-const CustomHeader = ({ title }) => {
+const Header = ({ title }) => {
   const navigation = useNavigation();
-
-  const handleBack = () => {
-    navigation.goBack();
-  };
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="black" />
+      <TouchableOpacity
+        onPress={() => navigation.toggleDrawer()}
+        style={styles.iconContainer}>
+        <Image
+          resizeMode="contain"
+          style={styles.icon}
+          source={require("../../assets/images/menu.png")}
+        />
       </TouchableOpacity>
-      <Text style={styles.title}>{title}</Text>
+      <Text
+        style={{
+          flex: 1, // Take up remaining space
+          textAlign: "center", // Center text horizontally
+          marginLeft: 12,
+          fontSize: 17,
+          fontWeight: "bold",
+        }}>
+        {title}
+      </Text>
     </View>
   );
 };
+
+export default Header;
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 20,
+    marginHorizontal: 15,
+    backgroundColor: "#fff",
   },
-  backButton: {
-    padding: 10,
+  iconContainer: {
+    height: 45,
+    width: 45,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EAF0F1",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 10,
+  icon: {
+    height: 24,
+    width: 24,
+    tintColor: "black",
   },
 });
-
-export default CustomHeader;

@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Text, View } from "react-native";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { mainUrl } from "../../Constants";
 
-const useComplaint = () => {
+const useComplaint = (refresh, setRefresh) => {
   const { user, token } = useContext(AuthContext);
   const [complaints, setComplaints] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchComplaints = () => {
+  console.log("refresh: ", refresh);
+
+  useEffect(() => {
     axios
       .get(`${mainUrl}/api/complaintsByUser/${user.danRegnum}`, {
         headers: {
@@ -19,9 +20,10 @@ const useComplaint = () => {
         },
       })
       .then((response) => {
+        console.log("complaint fetched successfully..");
         setComplaints(response.data.data);
         setLoading(false);
-        console.log("complaint fetched successfully..");
+        setRefresh(false);
       })
       .catch((err) => {
         setErrorMessage("Error fetching complaints");
@@ -33,31 +35,9 @@ const useComplaint = () => {
           message = "Интернет холболтоо шалгана уу...";
         setErrorMessage(message);
       });
-  };
+  }, [refresh]);
 
-  const addComplaint = (newComplaint) => {
-    axios
-      .post(`${mainUrl}/api/complaints`, newComplaint, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then(() => {
-        // Fetch updated complaints after adding a new complaint
-        console.log("complaint created successfully..");
-        fetchComplaints();
-      })
-      .catch((error) => {
-        setErrorMessage("Error adding complaint");
-      });
-  };
-
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
-
-  return [complaints, errorMessage, loading, addComplaint];
+  return [complaints, errorMessage, loading];
 };
 
 export default useComplaint;

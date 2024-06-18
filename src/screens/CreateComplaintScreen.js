@@ -6,10 +6,13 @@ import {
   StatusBar,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  Button,
+  Image,
 } from "react-native";
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { mainColor, formTextColor } from "../../Constants";
+import { mainColor, formTextColor, mainUrl } from "../../Constants";
 import FormText from "../components/FormText";
 import * as Animatable from "react-native-animatable";
 import FormPicker from "../components/FormPicker";
@@ -20,11 +23,10 @@ import useOrganization from "../hooks/useOrganization";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import FormRadioButton from "../components/FormRadioButton";
-import useComplaint from "../hooks/useComplaint";
+import * as ImagePicker from "expo-image-picker";
 
 const CreateComplaintScreen = (props) => {
   const { user, token } = useContext(AuthContext);
-  const [complaints, errorMessage, loading, addComplaint] = useComplaint();
   const [categories] = useCategory();
   const [complaintType] = useComplaintType();
   const [complaintTypeSummary] = useComplaintTypeSummary();
@@ -33,9 +35,8 @@ const CreateComplaintScreen = (props) => {
   const [filteredOrganizations, setFilteredOrganizations] = useState([]);
   const [filteredSummary, setFilteredSummary] = useState([]);
   const [resetPicker, setResetPicker] = useState(false);
+  const [image, setImage] = useState(null);
   const navigation = useNavigation();
-
-  // console.log("organizations: ", organizations);
 
   const initialUserData = {
     lastname: "",
@@ -120,12 +121,33 @@ const CreateComplaintScreen = (props) => {
 
   const sendComplaint = () => {
     const allFormData = { ...userData, ...formData };
-    // console.log("allFormData: ", allFormData);
-    addComplaint(allFormData);
-    resetForm();
-    setResetPicker(true);
-    navigation.navigate("ComplaintListScreen");
-    // props.navigation.navigate("ComplaintListScreen");
+
+    // console.log("==========", allFormData);
+
+    axios
+      .post(`${mainUrl}/api/complaints`, allFormData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        // Fetch updated complaints after adding a new complaint
+        console.log("complaint created successfully..");
+        // console.log("res: ", res.data.data);
+
+        const newComplaint = res.data.data;
+        uploadImage(newComplaint.id);
+
+        resetForm();
+        setResetPicker(true);
+        navigation.navigate("ComplaintListScreen", {
+          newComplaint: res.data.data,
+        });
+      })
+      .catch((error) => {
+        Alert.alert("Error create complaint: ", error);
+      });
   };
 
   const checkComplaint = (text) => {
@@ -139,6 +161,62 @@ const CreateComplaintScreen = (props) => {
     });
   };
 
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadImage = (complaint_id) => {
+    console.log("image=====", image);
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append("file", {
+      uri: image,
+      name: "image.jpg",
+      type: "image/jpeg",
+    });
+
+    axios
+      .post(`http://localhost:8000/api/upload/${complaint_id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        console.log("Image uploaded successfully", response.data);
+        setImage(null);
+      })
+      .catch((error) => {
+        console.error("Error uploading image", error.response.data);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.errors
+        ) {
+          const errorMessages = error.response.data.errors.file.join(", ");
+          Alert.alert("Upload Error", errorMessages);
+        } else {
+          console.error("Error uploading image", error.message);
+          Alert.alert(
+            "Upload Error",
+            "An error occurred while uploading the image."
+          );
+        }
+        setImage(null);
+      });
+  };
+
   const resetForm = () => {
     setFormData(initialFormData);
     setIsSubmitted(false);
@@ -149,13 +227,15 @@ const CreateComplaintScreen = (props) => {
       organization_id: false,
       complaint: false,
     });
+    setImage(null);
     console.log("Form resetted...");
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: mainColor }}>
-      <StatusBar backgroundColor={mainColor} barStyle="light" />
-      <View
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#fff", marginBottom: 50 }}>
+      {/* <StatusBar backgroundColor={mainColor} barStyle="light" /> */}
+      {/* <View
         style={{
           flex: 1,
           paddingVertical: 10,
@@ -168,7 +248,7 @@ const CreateComplaintScreen = (props) => {
         <Text style={{ fontSize: 14, color: "white" }}>
           Та дэлгэрэнгүй мэдээллээ доор оруулна уу
         </Text>
-      </View>
+      </View> */}
       <Animatable.View
         animation="fadeInUpBig"
         duration={1500}
@@ -249,11 +329,16 @@ const CreateComplaintScreen = (props) => {
             style={{ height: 100 }}
             multiline
             numberOfLines={10}
+            autoCapitalize="none"
+            autoCorrect={false}
             value={formData.complaint}
             onChangeText={checkComplaint}
             // errorText="Текстийн урт 10 тэмдэгтээс багагүй байна"
             // errorShow={error.complaint}
           />
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+          <Button title="Файл хавсаргах" onPress={pickImage} />
+          {/* <Button title="Upload" onPress={() => uploadImage(347)} /> */}
           <TouchableOpacity
             style={{
               alignItems: "center",
@@ -269,9 +354,21 @@ const CreateComplaintScreen = (props) => {
           </TouchableOpacity>
         </ScrollView>
       </Animatable.View>
-      {/* <ComplaintForm /> */}
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    marginTop: 10,
+  },
+});
 
 export default CreateComplaintScreen;

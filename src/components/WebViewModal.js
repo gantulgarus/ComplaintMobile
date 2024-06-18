@@ -65,7 +65,7 @@ const WebViewModal = ({ visible, onClose }) => {
 
       const token = tokenResponse.data;
 
-      // console.log("token = ", token.access_token);
+      console.log("token = ", token.access_token);
 
       const headers = { Authorization: "Bearer " + token.access_token };
 
@@ -80,6 +80,7 @@ const WebViewModal = ({ visible, onClose }) => {
         const res =
           dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
             ?.response;
+        // console.log(res);
         setDanuser(res);
         console.log("Login start...");
       }
