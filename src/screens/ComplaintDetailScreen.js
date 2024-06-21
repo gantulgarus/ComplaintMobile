@@ -15,6 +15,8 @@ import Divider from "../components/Divider";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { AuthContext } from "../context/AuthContext";
 import { mainBgColor, mainUrl } from "../../Constants";
+import FileModal from "../components/FileModal";
+import { getFileExtension } from "../utils/Helper";
 
 const ComplaintDetailScreen = ({ route }) => {
   const { user, token } = useContext(AuthContext);
@@ -23,6 +25,8 @@ const ComplaintDetailScreen = ({ route }) => {
   const [steps, setSteps] = useState([]);
   const [sound, setSound] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
+
+  console.log(complaint);
 
   const playSound = async (audioUrl) => {
     if (audioUrl) {
@@ -65,13 +69,26 @@ const ComplaintDetailScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {/* <CustomHeader title="Дэлгэрэнгүй" /> */}
       <View style={styles.containerComplaint}>
         <View style={styles.info}>
           <Text style={styles.name}>
             {complaint.category} - №{complaint.serial_number}
           </Text>
           <Text style={styles.date}>{complaint.complaint_date}</Text>
+
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              marginBottom: 10,
+            }}>
+            <Text style={styles.infoText}>{complaint.energyType}</Text>
+            <Text style={styles.infoText}>{complaint.complaintType}</Text>
+            <Text style={styles.infoText}>
+              {complaint.complaintTypeSummary}
+            </Text>
+          </View>
+
           <Text style={styles.description}>{complaint.complaint}</Text>
         </View>
         <View style={{ padding: 10 }}>
@@ -84,15 +101,13 @@ const ComplaintDetailScreen = ({ route }) => {
             </TouchableOpacity>
           )}
           {complaint.fileUrl && (
-            <View style={{ marginTop: 10 }}>
-              <TouchableOpacity style={styles.buttonFile} onPress={togglePopup}>
-                <MaterialIcon name="attach-file" size={20} color="#000" />
-                <Text style={styles.text}>{complaint.fileName}</Text>
-              </TouchableOpacity>
-              <ImagePopup
-                imageUrl={complaint.fileUrl}
-                visible={popupVisible}
-                onClose={togglePopup}
+            <View style={{ paddingLeft: 10, width: 300 }}>
+              <Text style={{ fontSize: 12, color: "gray" }}>Хавсралт файл</Text>
+              <FileModal
+                fileName={complaint.fileName}
+                fileExt={getFileExtension(complaint.fileName)}
+                fileSizeInKilobytes={1234}
+                fileUrl={complaint.fileUrl}
               />
             </View>
           )}
@@ -109,25 +124,45 @@ export default ComplaintDetailScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: mainBgColor,
+    // backgroundColor: mainBgColor,
+    backgroundColor: "#fff",
   },
   info: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  infoText: {
+    color: "#1E3A8A", // Equivalent to text-blue-900
+    backgroundColor: "#DBEAFE", // Equivalent to bg-blue-100
+    fontSize: 14, // Equivalent to text-sm
+    paddingVertical: 2, // Equivalent to py-1
+    paddingHorizontal: 4, // Equivalent to px-2
+    margin: 2, // Equivalent to m-2 and mr-2
+    borderRadius: 4, // Equivalent to rounded-md
   },
   name: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
   },
   date: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#999",
     marginBottom: 10,
   },
   description: {
-    fontSize: 14,
-    color: "#333",
-    // lineHeight: 24,
+    padding: 12, // Equivalent to p-4
+    backgroundColor: "#f1f5f9", // Equivalent to bg-slate-100
+    borderRadius: 8, // Equivalent to rounded
+    color: "#334155", // Equivalent to text-slate-700
+    textAlign: "justify", // Equivalent to text-justify
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3, // Equivalent to shadow-inner
   },
   buttonFile: {
     flexDirection: "row",

@@ -7,8 +7,8 @@ import DrawerNavigator from "./DrawerNavigator";
 import LoginScreen from "../screens/LoginScreen";
 import ComplaintDetailScreen from "../screens/ComplaintDetailScreen";
 import CreateComplaintScreen from "../screens/CreateComplaintScreen";
-import { useInactivityTimer } from "../utils/useInactivityTimer";
-import CustomHeader from "../components/CustomHeader";
+import NotificationScreen from "../screens/NotificationScreen";
+import ItemSelectionScreen from "../screens/ItemSelectionScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -50,6 +50,18 @@ const StackNavigator = () => {
             name="CreateComplaintStack"
             component={CreateComplaintScreen}
             options={{ title: "Өргөдөл, гомдол бүртгэх" }}
+            // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
+          />
+          <Stack.Screen
+            name="NotificationStack"
+            component={NotificationScreen}
+            options={{ title: "Мэдэгдэл" }}
+            // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
+          />
+          <Stack.Screen
+            name="ItemSelectionScreen"
+            component={ItemSelectionScreen}
+            options={{ title: "Сонгох" }}
             // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
           />
         </>

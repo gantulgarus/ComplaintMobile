@@ -9,6 +9,7 @@ import {
   Button,
   StyleSheet,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { AuthContext } from "../context/AuthContext";
@@ -19,7 +20,7 @@ const objectToUrl = (obj) => {
 };
 
 const WebViewModal = ({ visible, onClose }) => {
-  const { login, setDanuser } = useContext(AuthContext);
+  const { setDanuser, setLoading } = useContext(AuthContext);
   const [uri, setUri] = useState("");
   const [authCode, setAuthCode] = useState(null);
 
@@ -80,13 +81,17 @@ const WebViewModal = ({ visible, onClose }) => {
         const res =
           dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
             ?.response;
-        // console.log(res);
-        setDanuser(res);
-        console.log("Login start...");
+        setTimeout(() => {
+          console.log("res===", res);
+          setDanuser(res);
+          setLoading(true);
+
+          console.log("Login start...");
+        }, 2000);
       }
     } catch (error) {
       console.error("Error:", error);
-      onClose(); // Close the modal in case of an error
+      onClose();
     }
   };
 
@@ -117,7 +122,8 @@ const WebViewModal = ({ visible, onClose }) => {
                     const code = /\?code=(.+)&expires/.exec(state.url);
 
                     if (!isEmpty(code) && !isEmpty(code[0])) {
-                      getUserDataEmongolia(code);
+                      // getUserDataEmongolia(code);
+                      setAuthCode(code); // Set the auth code
                       onClose();
                     }
                   }

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
+import { faqs } from "../../Faq";
 
 const FAQScreen = () => {
   const [expanded, setExpanded] = useState({}); // State to track expanded/collapsed items
@@ -19,27 +20,11 @@ const FAQScreen = () => {
     }));
   };
 
-  const faqItems = [
-    {
-      id: 1,
-      question: "What is React Native?",
-      answer:
-        "React Native is a JavaScript framework for building native mobile applications.",
-    },
-    {
-      id: 2,
-      question: "How does React Native differ from React?",
-      answer:
-        "React Native is specifically for mobile app development, while React is for web development.",
-    },
-    // Add more FAQ items as needed
-  ];
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Түгээмэл асуулт, хариулт" />
       <ScrollView contentContainerStyle={styles.container}>
-        {faqItems.map((item) => (
+        {faqs.map((item) => (
           <View key={item.id} style={styles.faqItem}>
             <TouchableOpacity onPress={() => toggleExpand(item.id)}>
               <Text style={styles.question}>{item.question}</Text>
@@ -61,16 +46,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   faqItem: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   question: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
     textDecorationLine: "underline",
   },
   answer: {
-    fontSize: 16,
+    fontSize: 14,
   },
 });
 

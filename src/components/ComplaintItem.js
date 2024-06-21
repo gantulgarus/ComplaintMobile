@@ -4,26 +4,10 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Datetime from "./Datetime";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
+import { getStatusColor } from "../utils/Helper";
 
 const { width } = Dimensions.get("window");
 const columnWidth = width * 0.2;
-
-const getStatusColor = (statusId) => {
-  switch (statusId) {
-    case 0:
-      return "#4b5563";
-    case 2:
-      return "#ea580c";
-    case 3:
-      return "#2563eb";
-    case 4:
-      return "#dc2626";
-    case 6:
-      return "#16a34a";
-    default:
-      return "#4b5563";
-  }
-};
 
 const ComplaintItem = ({ complaint }) => {
   // console.log(complaint);

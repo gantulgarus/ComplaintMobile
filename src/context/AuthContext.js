@@ -71,6 +71,7 @@ export const AuthProvider = (props) => {
         token,
         error,
         loading,
+        setLoading,
         setDanuser,
       }}>
       {props.children}

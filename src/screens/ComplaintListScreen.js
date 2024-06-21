@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { mainBgColor, mainColor } from "../../Constants";
 import useComplaint from "../hooks/useComplaint";
 import Search from "../components/Search";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ComplaintListScreen = (props) => {
   const [input, setInput] = useState("");
@@ -30,6 +31,15 @@ const ComplaintListScreen = (props) => {
     delete props.route.params.newComplaint;
     setRefresh(true);
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefresh(true);
+      return () => {
+        setRefresh(false);
+      };
+    }, [])
+  );
 
   const filteredRows = useMemo(() => {
     const rows = [];

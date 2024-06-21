@@ -36,6 +36,7 @@ const CreateComplaintScreen = (props) => {
   const [filteredSummary, setFilteredSummary] = useState([]);
   const [resetPicker, setResetPicker] = useState(false);
   const [image, setImage] = useState(null);
+  const [selectedLabel, setSelectedLabel] = useState("Choose");
   const navigation = useNavigation();
 
   const initialUserData = {
@@ -187,7 +188,7 @@ const CreateComplaintScreen = (props) => {
     });
 
     axios
-      .post(`http://localhost:8000/api/upload/${complaint_id}`, formData, {
+      .post(`${mainUrl}/api/upload/${complaint_id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -233,22 +234,8 @@ const CreateComplaintScreen = (props) => {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#fff", marginBottom: 50 }}>
-      {/* <StatusBar backgroundColor={mainColor} barStyle="light" /> */}
-      {/* <View
-        style={{
-          flex: 1,
-          paddingVertical: 10,
-          paddingHorizontal: 20,
-          backgroundColor: mainColor,
-        }}>
-        <Text style={{ fontSize: 28, color: "white" }}>
-          Өргөдөл, гомдол бүртгэх
-        </Text>
-        <Text style={{ fontSize: 14, color: "white" }}>
-          Та дэлгэрэнгүй мэдээллээ доор оруулна уу
-        </Text>
-      </View> */}
+      style={{ flex: 1, backgroundColor: "#fff", marginBottom: 50 }}
+      showsVerticalScrollIndicator={false}>
       <Animatable.View
         animation="fadeInUpBig"
         duration={1500}
@@ -326,7 +313,7 @@ const CreateComplaintScreen = (props) => {
             label="Санал хүсэлт"
             placeholder="Санал хүсэлтээ бичнэ үү"
             // icon="edit"
-            style={{ height: 100 }}
+            style={{ height: 100, marginBottom: 20 }}
             multiline
             numberOfLines={10}
             autoCapitalize="none"
@@ -346,6 +333,7 @@ const CreateComplaintScreen = (props) => {
               padding: 10,
               marginTop: 20,
               borderRadius: 10,
+              marginBottom: 50,
             }}
             onPress={sendComplaint}>
             <Text style={{ color: "#fff", paddingVertical: 5, fontSize: 18 }}>

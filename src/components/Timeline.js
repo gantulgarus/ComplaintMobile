@@ -1,7 +1,13 @@
 import React from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
+import FileModal from "./FileModal";
+import { getFileExtension, getStatusColor } from "../utils/Helper";
+import Icon from "react-native-vector-icons/FontAwesome";
+import FeatherIcon from "react-native-vector-icons/Feather";
 
 export default function Timeline({ items }) {
+  // console.log(items);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Шийдвэрлэлтийн явц</Text>
@@ -14,23 +20,49 @@ export default function Timeline({ items }) {
                 <View style={styles.cardDelimiterLine} />
               )}
 
-              <View
-                style={[
-                  styles.cardDelimiterInset,
-                  item.status_id == 6 && { backgroundColor: "springgreen" },
-                ]}
-              />
+              <View style={styles.cardDelimiterInset}>
+                {item.status_id === 2 ? (
+                  <Icon name="circle-o" size={18} color="#4ade80" />
+                ) : item.status_id === 6 ? (
+                  <Icon name="check-circle" size={18} color="#4ade80" />
+                ) : (
+                  <FeatherIcon name="message-square" size={16} color="gray" />
+                )}
+              </View>
             </View>
 
             <View style={styles.cardBody}>
               <View style={styles.cardBodyContent}>
                 <View style={styles.cardTitle}>
                   <Text style={styles.cardOrg}>{item.org}</Text>
-                  <Text style={styles.cardStatus}>({item.status})</Text>
                 </View>
-                <Text style={styles.cardDates}>{item.date}</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cardDates}>{item.date}</Text>
+                  <Text
+                    style={[
+                      styles.cardStatus,
+                      { color: getStatusColor(item.status_id) },
+                    ]}>
+                    ({item.status})
+                  </Text>
+                </View>
 
-                <Text style={styles.cardDesc}>{item.desc}</Text>
+                <View style={styles.contentText}>
+                  <Text style={styles.cardDesc}>{item.desc}</Text>
+                </View>
+                {item.fileUrl && (
+                  <View style={{ marginLeft: 30 }}>
+                    <Text style={{ fontSize: 12, color: "gray" }}>
+                      Хавсралт файл
+                    </Text>
+                    <FileModal
+                      fileName={item.fileName}
+                      fileExt={getFileExtension(item.fileName)}
+                      fileSizeInKilobytes={1234}
+                      fileUrl={item.fileUrl}
+                    />
+                  </View>
+                )}
               </View>
             </View>
           </View>
@@ -50,52 +82,53 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1d1d1d",
     marginBottom: 10,
-    // borderWidth: 1,
-    // borderBottomColor: "black",
     borderBottomWidth: 2,
-    // borderBottomColor: "black",
-    // paddingBottom: 10,
-    // backgroundColor: "red",
   },
   /** Card */
   card: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start", // Change to flex-start to align items at the top
   },
   cardDelimiter: {
     position: "relative",
     width: 40,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start", // Change to flex-start to align items at the top
     alignSelf: "stretch",
   },
   cardDelimiterLine: {
     position: "absolute",
     left: 20,
-    top: "50%",
+    top: 0, // Change to 0 to start the line from the top
     borderLeftWidth: 1,
-    borderColor: "seagreen",
-    height: "100%",
+    borderColor: "#cbd5e1",
+    height: "100%", // Change to 100% to make the line span the entire height
     zIndex: 1,
   },
   cardDelimiterInset: {
-    width: 12,
-    height: 12,
-    borderWidth: 3,
+    width: 28,
+    height: 28,
+    borderWidth: 1,
     borderRadius: 9999,
-    backgroundColor: "seagreen",
-    borderColor: "seagreen",
+    backgroundColor: "#f1f5f9",
+    borderColor: "#cbd5e1",
     zIndex: 9,
     position: "relative",
+    alignItems: "center", // Center the icon
+    justifyContent: "center", // Center the icon
   },
   cardBody: {
     padding: 12,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start", // Change to flex-start to align items at the top
+    justifyContent: "flex-start", // Change to flex-start to align items at the top
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
+    borderColor: "#cbd5e1",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   cardBodyContent: {
     flexGrow: 1,
@@ -106,11 +139,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
+    flexWrap: "wrap", // Allow text to wrap
   },
   cardOrg: {
     fontSize: 14,
     fontWeight: "600",
     color: "#2a2a2a",
+    flexShrink: 1, // Allow the text to shrink if necessary
   },
   cardStatus: {
     fontSize: 12,
@@ -126,7 +161,30 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: "500",
-    color: "#464646",
+    color: "#334155",
     marginBottom: 3,
+  },
+  buttonFile: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "whitesmoke",
+    borderRadius: 5,
+  },
+  contentText: {
+    marginVertical: 10,
+    paddingHorizontal: 10, // Equivalent to p-4
+    paddingVertical: 5, // Equivalent to p-4
+    backgroundColor: "#f1f5f9", // Equivalent to bg-slate-100
+    borderRadius: 8, // Equivalent to rounded
+    textAlign: "justify", // Equivalent to text-justify
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3, // Equivalent to shadow-inner
   },
 });

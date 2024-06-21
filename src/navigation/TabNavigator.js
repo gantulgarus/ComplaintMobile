@@ -91,6 +91,14 @@ const BottomTabNavigator = () => {
             <AntDesign name="bells" color={color} size={26} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Prevent default behavior
+            e.preventDefault();
+            // Navigate to CreateComplaintScreen without bottom tabs
+            navigation.navigate("NotificationStack");
+          },
+        })}
       />
       <Tab.Screen
         name="Profile"
