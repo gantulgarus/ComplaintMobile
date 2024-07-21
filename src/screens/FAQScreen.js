@@ -27,7 +27,9 @@ const FAQScreen = () => {
         {faqs.map((item) => (
           <View key={item.id} style={styles.faqItem}>
             <TouchableOpacity onPress={() => toggleExpand(item.id)}>
-              <Text style={styles.question}>{item.question}</Text>
+              <View style={styles.row}>
+                <Text style={styles.question}>{item.question}</Text>
+              </View>
             </TouchableOpacity>
             {expanded[item.id] && (
               <Text style={styles.answer}>{item.answer}</Text>
@@ -48,14 +50,18 @@ const styles = StyleSheet.create({
   faqItem: {
     marginBottom: 10,
   },
+  row: {
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "gray",
+  },
   question: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-    textDecorationLine: "underline",
+    fontSize: 14,
+    textTransform: "uppercase",
   },
   answer: {
     fontSize: 14,
+    marginVertical: 20,
   },
 });
 

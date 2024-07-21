@@ -1,9 +1,17 @@
 import React from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import FileModal from "./FileModal";
 import { getFileExtension, getStatusColor } from "../utils/Helper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import FeatherIcon from "react-native-vector-icons/Feather";
+import { mainColor } from "../../Constants";
 
 export default function Timeline({ items }) {
   // console.log(items);
@@ -14,58 +22,94 @@ export default function Timeline({ items }) {
 
       {items.map((item, index) => {
         return (
-          <View key={index} style={styles.card}>
-            <View style={styles.cardDelimiter}>
-              {index !== items.length - 1 && (
-                <View style={styles.cardDelimiterLine} />
-              )}
-
-              <View style={styles.cardDelimiterInset}>
-                {item.status_id === 2 ? (
-                  <Icon name="circle-o" size={18} color="#4ade80" />
-                ) : item.status_id === 6 ? (
-                  <Icon name="check-circle" size={18} color="#4ade80" />
-                ) : (
-                  <FeatherIcon name="message-square" size={16} color="gray" />
+          <>
+            <View key={index} style={styles.card}>
+              <View style={styles.cardDelimiter}>
+                {index !== items.length - 1 && (
+                  <View style={styles.cardDelimiterLine} />
                 )}
+
+                <View style={styles.cardDelimiterInset}>
+                  {item.status_id === 2 ? (
+                    <Icon name="circle-o" size={18} color="#4ade80" />
+                  ) : item.status_id === 6 ? (
+                    <Icon name="check-circle" size={18} color="#4ade80" />
+                  ) : (
+                    <FeatherIcon name="message-square" size={16} color="gray" />
+                  )}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.cardBody}>
-              <View style={styles.cardBodyContent}>
-                <View style={styles.cardTitle}>
-                  <Text style={styles.cardOrg}>{item.org}</Text>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.cardDates}>{item.date}</Text>
-                  <Text
-                    style={[
-                      styles.cardStatus,
-                      { color: getStatusColor(item.status_id) },
-                    ]}>
-                    ({item.status})
-                  </Text>
-                </View>
-
-                <View style={styles.contentText}>
-                  <Text style={styles.cardDesc}>{item.desc}</Text>
-                </View>
-                {item.fileUrl && (
-                  <View style={{ marginLeft: 30 }}>
-                    <Text style={{ fontSize: 12, color: "gray" }}>
-                      Хавсралт файл
-                    </Text>
-                    <FileModal
-                      fileName={item.fileName}
-                      fileExt={getFileExtension(item.fileName)}
-                      fileSizeInKilobytes={1234}
-                      fileUrl={item.fileUrl}
-                    />
+              <View style={styles.cardBody}>
+                <View style={styles.cardBodyContent}>
+                  <View style={styles.cardTitle}>
+                    <Text style={styles.cardOrg}>{item.org}</Text>
                   </View>
-                )}
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.cardDates}>{item.date}</Text>
+                    <Text
+                      style={[
+                        styles.cardStatus,
+                        { color: getStatusColor(item.status_id) },
+                      ]}>
+                      ({item.status})
+                    </Text>
+                  </View>
+
+                  <View style={styles.contentText}>
+                    <Text style={styles.cardDesc}>{item.desc}</Text>
+                  </View>
+                  {item.fileUrl && (
+                    <View style={{ marginLeft: 30 }}>
+                      <Text style={{ fontSize: 12, color: "gray" }}>
+                        Хавсралт файл
+                      </Text>
+                      <FileModal
+                        fileName={item.fileName}
+                        fileExt={getFileExtension(item.fileName)}
+                        fileSizeInKilobytes={1234}
+                        fileUrl={item.fileUrl}
+                      />
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
-          </View>
+            {item.status == "Шийдвэрлэсэн" && (
+              <View
+                style={{
+                  padding: 10,
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}>
+                <Text style={{ color: "gray", marginVertical: 10 }}>
+                  Өргөдөл, гомдлын шийдвэрлэлттэй санал нийлэхгүй байвал ЭХЗХ-нд
+                  дахин гомдол гаргах боломжтой.
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    width: "100%",
+                    borderWidth: 1,
+                    borderColor: mainColor,
+                    borderRadius: 10,
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    alignItems: "center",
+                  }}
+                  onPress={() => Alert.alert("Button Pressed!")}>
+                  <Text
+                    style={{
+                      color: mainColor,
+                      fontSize: 16,
+                      fontWeight: "bold",
+                    }}>
+                    Гомдол гаргах
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
         );
       })}
     </ScrollView>
