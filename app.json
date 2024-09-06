@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "ComplaintMobileApp",
+    "name": "eConsumer",
+    "description": "Дуудлага, гомдлын бүртгэл, хяналтын нэгдсэн цахим систем.",
     "slug": "ComplaintMobileApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +12,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -18,16 +25,22 @@
           "audio"
         ]
       },
-      "bundleIdentifier": "com.gantulgarus.ComplaintMobileApp"
+      "bundleIdentifier": "mn.consumer.energy",
+      "buildNumber": "5"
     },
     "android": {
+      "versionCode": 5,
+      "package": "mn.consumer.energy",
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "ae76f6ec-61b9-4e78-9c0d-50da77b6d43d"
+      }
     }
   }
 }

@@ -22,8 +22,8 @@ export default function Timeline({ items }) {
 
       {items.map((item, index) => {
         return (
-          <>
-            <View key={index} style={styles.card}>
+          <View key={index}>
+            <View style={styles.card}>
               <View style={styles.cardDelimiter}>
                 {index !== items.length - 1 && (
                   <View style={styles.cardDelimiterLine} />
@@ -109,7 +109,7 @@ export default function Timeline({ items }) {
                 </TouchableOpacity>
               </View>
             )}
-          </>
+          </View>
         );
       })}
     </ScrollView>
