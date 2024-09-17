@@ -10,6 +10,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { AuthContext } from "../context/AuthContext";
@@ -20,7 +21,7 @@ const objectToUrl = (obj) => {
 };
 
 const WebViewModal = ({ visible, onClose }) => {
-  const { setDanuser, setLoading } = useContext(AuthContext);
+  const { setDanuser, setLoading, login } = useContext(AuthContext);
   const [uri, setUri] = useState("");
   const [authCode, setAuthCode] = useState(null);
 
@@ -30,11 +31,11 @@ const WebViewModal = ({ visible, onClose }) => {
     }
   }, [visible]);
 
-  useEffect(() => {
-    if (authCode) {
-      getUserDataEmongolia(authCode);
-    }
-  }, [authCode]);
+  // useEffect(() => {
+  //   if (authCode) {
+  //     getUserDataEmongolia(authCode);
+  //   }
+  // }, [authCode]);
 
   const handleGenerateString = () => {
     const newString = generateRandomString(40);
@@ -64,34 +65,47 @@ const WebViewModal = ({ visible, onClose }) => {
         }
       );
 
-      const token = tokenResponse.data;
+      console.log("Token Response: ", tokenResponse); // Log entire response for debugging
 
-      console.log("token = ", token.access_token);
+      if (tokenResponse && tokenResponse.data) {
+        const token = tokenResponse.data;
 
-      const headers = { Authorization: "Bearer " + token.access_token };
+        console.log("Access token: ", token.access_token);
 
-      const dataResponse = await axios.get(
-        "https://sso.gov.mn/oauth2/api/v1/service",
-        {
-          headers,
-          timeout: 30000,
+        const headers = { Authorization: "Bearer " + token.access_token };
+
+        const dataResponse = await axios.get(
+          "https://sso.gov.mn/oauth2/api/v1/service",
+          {
+            headers,
+            timeout: 30000,
+          }
+        );
+
+        if (dataResponse && dataResponse.data) {
+          const res =
+            dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
+              ?.response;
+          // setDanuser(res);
+          login(res);
+
+          // setTimeout(() => {
+          //   console.log("res===", res);
+          //   setDanuser(res);
+          //   setLoading(true);
+
+          //   console.log("Login start...");
+          // }, 2000);
         }
-      );
-      if (dataResponse.data) {
-        const res =
-          dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
-            ?.response;
-        setTimeout(() => {
-          console.log("res===", res);
-          setDanuser(res);
-          setLoading(true);
-
-          console.log("Login start...");
-        }, 2000);
+      } else {
+        // Handle case where tokenResponse doesn't contain data
+        console.error("Token response is empty or invalid.");
+        Alert.alert("Login failed", "No data received from the server.");
       }
     } catch (error) {
-      console.error("Error:", error);
-      onClose();
+      console.error("Error during API call:", error);
+      Alert.alert("Login failed", "An error occurred while fetching data.");
+      // onClose();
     }
   };
 
@@ -122,8 +136,8 @@ const WebViewModal = ({ visible, onClose }) => {
                     const code = /\?code=(.+)&expires/.exec(state.url);
 
                     if (!isEmpty(code) && !isEmpty(code[0])) {
-                      // getUserDataEmongolia(code);
-                      setAuthCode(code); // Set the auth code
+                      getUserDataEmongolia(code);
+                      // setAuthCode(code); // Set the auth code
                       onClose();
                     }
                   }

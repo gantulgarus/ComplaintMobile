@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const Header = ({ title, onPress, user }) => {
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -29,10 +30,10 @@ const Header = ({ title, onPress, user }) => {
         <Text
           style={{
             marginRight: 12,
-            fontSize: 17,
+            fontSize: 14,
             fontWeight: "bold",
           }}>
-          Сайн байна уу {user?.name}
+          Сайн байна уу, {user?.name}
         </Text>
         <Image
           resizeMode="cover"
@@ -41,7 +42,11 @@ const Header = ({ title, onPress, user }) => {
             height: 45,
             borderRadius: 60,
           }}
-          source={{ uri: "data:image/png;base64," + user?.danImage }}
+          source={
+            user?.danImage
+              ? { uri: "data:image/png;base64," + user?.danImage }
+              : require("../../assets/images/user.png") // Default image
+          }
         />
       </View>
     </View>

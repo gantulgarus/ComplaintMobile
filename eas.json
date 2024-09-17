@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 11.0.1"
+    "version": ">= 11.0.1",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -10,7 +11,12 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "autoIncrement": true,
+      "env": {
+          "ANDROID_SDK_ROOT": "/Users/gantulga/Library/Android/sdk"
+      }
+    }
   },
   "submit": {
     "production": {}

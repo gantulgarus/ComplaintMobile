@@ -83,7 +83,7 @@ export default function Timeline({ items }) {
                   justifyContent: "center",
                   alignItems: "center",
                 }}>
-                <Text style={{ color: "gray", marginVertical: 10 }}>
+                {/* <Text style={{ color: "gray", marginVertical: 10 }}>
                   Өргөдөл, гомдлын шийдвэрлэлттэй санал нийлэхгүй байвал ЭХЗХ-нд
                   дахин гомдол гаргах боломжтой.
                 </Text>
@@ -106,7 +106,7 @@ export default function Timeline({ items }) {
                     }}>
                     Гомдол гаргах
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             )}
           </View>

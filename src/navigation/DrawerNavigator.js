@@ -18,6 +18,16 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   const { user, logout } = useContext(AuthContext);
+  // Function to extract first 2 letters of the user's name
+  const getInitials = (name) => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2);
+  };
+
   return (
     <Drawer.Navigator
       initialRouteName="Drawer Home"
@@ -32,7 +42,11 @@ const DrawerNavigator = () => {
                 alignItems: "center",
               }}>
               <Image
-                source={{ uri: "data:image/png;base64," + user?.danImage }}
+                source={
+                  user?.danImage
+                    ? { uri: "data:image/png;base64," + user?.danImage }
+                    : require("../../assets/images/user.png") // Default image
+                }
                 style={{
                   height: 100,
                   width: 100,
@@ -46,7 +60,7 @@ const DrawerNavigator = () => {
                   fontWeight: "bold",
                   marginBottom: 6,
                 }}>
-                {user?.danFirstname}
+                {user?.name}
               </Text>
               <Text
                 style={{

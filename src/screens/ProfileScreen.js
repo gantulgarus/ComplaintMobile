@@ -33,12 +33,19 @@ export default function ProfileScreen() {
                 style={styles.profile}>
                 <Image
                   alt="Profile"
-                  source={{ uri: "data:image/png;base64," + user?.danImage }}
+                  // source={{ uri: "data:image/png;base64," + user?.danImage }}
+                  source={
+                    user?.danImage
+                      ? { uri: "data:image/png;base64," + user?.danImage }
+                      : require("../../assets/images/user.png") // Default image
+                  }
                   style={styles.profileAvatar}
                 />
                 <View style={styles.profileBody}>
                   <Text style={styles.profileName}>
-                    {user?.danLastname} {user?.danFirstname}
+                    {user?.danLastname && user?.danFirstname
+                      ? user?.danLastname + " " + user?.danFirstname
+                      : user?.name}
                   </Text>
                   <Text style={styles.profileHandle}>{user?.email}</Text>
                 </View>

@@ -69,13 +69,13 @@ const styles = StyleSheet.create({
   },
   number: {
     marginLeft: 10,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#000",
   },
   text: {
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
   },
 });

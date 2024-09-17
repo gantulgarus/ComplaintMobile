@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "eConsumer",
+    "name": "econsumer",
+    "scheme": "econsumer",
     "description": "Дуудлага, гомдлын бүртгэл, хяналтын нэгдсэн цахим систем.",
-    "slug": "ComplaintMobileApp",
-    "version": "1.0.0",
+    "slug": "econsumer",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,17 +22,16 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ]
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to allow users to upload photos."
       },
+      "buildNumber": "1.0.12",
       "bundleIdentifier": "mn.consumer.energy",
-      "buildNumber": "5"
+      "entitlements": {
+        "aps-environment": "production"
+      }
     },
     "android": {
-      "versionCode": 5,
       "package": "mn.consumer.energy",
-      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -39,7 +39,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "ae76f6ec-61b9-4e78-9c0d-50da77b6d43d"
+        "projectId": "00ed951b-57e0-4ac0-941b-5c70a17f3393"
       }
     }
   }

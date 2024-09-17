@@ -76,10 +76,10 @@ const styles = StyleSheet.create({
   },
   content: {
     width: "90%",
-    paddingVertical: 20,
+    // paddingVertical: 20,
   },
   infoContainer: {
-    marginTop: 20,
+    // marginTop: 20,
   },
   infoLabel: {
     fontWeight: "bold",

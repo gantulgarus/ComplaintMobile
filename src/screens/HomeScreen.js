@@ -5,6 +5,7 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import React, { useCallback, useContext, useState } from "react";
 import ComplaintItem from "../components/ComplaintItem";
@@ -16,11 +17,14 @@ import Header from "../components/Header";
 import { mainColor } from "../../Constants";
 import useComplaint from "../hooks/useComplaint";
 import { useFocusEffect } from "@react-navigation/native";
+import { debounce } from "lodash";
 
 const Home = ({ navigation }) => {
   const { user, token } = useContext(AuthContext);
   // console.log("user====", user);
-  const [refresh, setRefresh] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // Track pull-to-refresh state
+  const [refresh, setRefresh] = useState(false); // State to trigger refresh
+
   const [complaints, errorMessage, loading] = useComplaint(refresh, setRefresh);
 
   // Function to count complaints by status ID
@@ -28,6 +32,11 @@ const Home = ({ navigation }) => {
     return complaints.filter((complaint) => complaint.status_id == statusId)
       .length;
   };
+
+  // const onRefresh = () => {
+  //   setRefreshing(true); // Start refreshing
+  //   setRefresh(true); // Trigger data fetching
+  // };
 
   useFocusEffect(
     useCallback(() => {
@@ -114,6 +123,13 @@ const Home = ({ navigation }) => {
               data={complaints}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => <ComplaintItem complaint={item} />}
+              // refreshControl={
+              //   <RefreshControl
+              //     refreshing={refresh} // Indicates if the list is refreshing
+              //     onRefresh={onRefresh} // Function to call when pull-to-refresh happens
+              //     colors={[mainColor]} // The color of the refresh spinner
+              //   />
+              // }
             />
           ) : (
             <EmptyData
@@ -132,7 +148,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     // backgroundColor: "#f8fafc",
   },
   header: {
