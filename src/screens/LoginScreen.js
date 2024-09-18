@@ -55,7 +55,7 @@ const Login = () => {
       console.log(error);
       Alert.alert(
         "Амжилтгүй",
-        error.response?.data?.error || "Алдаа гарлаа. Дахин оролдно уу."
+        error.response?.data?.error || "Алдаа гарлаа. Дахин оролдоно уу."
       );
     } finally {
       setLoading(false);
@@ -70,21 +70,26 @@ const Login = () => {
         style={styles.image}>
         <View style={styles.centeredContent}>
           <Image
+            source={require("../../assets/images/hero.png")}
+            style={styles.hero}
+            resizeMode="contain"
+          />
+          <Image
             source={require("../../assets/images/logo_white.png")}
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={styles.desc}>
+          {/* <Text style={styles.desc}>
             Эрчим хүч хэрэглэгч иргэн, аж ахуйн нэгжээс эрчим хүчний зохицуулах
             хороо болон цахилгаан дулаан түгээх, хангах тусгай зөвшөөрөл
             эзэмшигчид санал, хүсэлт, өргөдөл, гомдол гаргах
-          </Text>
+          </Text> */}
         </View>
         <View style={styles.loginForm}>
           <Text style={styles.title}>Өргөдөл, гомдлын цахим систем</Text>
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Мэйл хаяг"
             placeholderTextColor="#ccc"
             value={email}
             onChangeText={setEmail}
@@ -93,7 +98,7 @@ const Login = () => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Нууц үг"
             placeholderTextColor="#ccc"
             value={password}
             onChangeText={setPassword}
@@ -126,13 +131,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   centeredContent: {
-    flex: 2,
-    justifyContent: "flex-end",
+    flex: 3,
+    justifyContent: "space-evenly",
     alignItems: "center",
   },
+  hero: {
+    height: 250,
+    marginTop: 50,
+  },
   logo: {
-    height: 80,
-    marginBottom: 10,
+    height: 60,
+    marginBottom: 50,
   },
   desc: {
     color: "white",
@@ -142,8 +151,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   loginForm: {
-    flex: 1,
-    justifyContent: "flex-end",
+    flex: 2,
+    justifyContent: "space-between",
     backgroundColor: "white",
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -151,24 +160,25 @@ const styles = StyleSheet.create({
   title: {
     color: "#3730a3",
     fontWeight: "bold",
-    fontSize: 28,
+    fontSize: 22,
     textAlign: "center",
-    marginBottom: 10,
+    // marginTop: 5,
+    marginBottom: 5,
   },
   input: {
     backgroundColor: "#eee",
     borderRadius: 10,
     paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginBottom: 15,
+    paddingVertical: 15,
+    marginBottom: 5,
     fontSize: 16,
   },
   button: {
     backgroundColor: "#3730a3",
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 5,
   },
   buttonText: {
     color: "#fff",
@@ -177,6 +187,7 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: "#4ade80",
     padding: 10,
+    marginBottom: 10,
     borderRadius: 10,
     alignItems: "center",
   },
