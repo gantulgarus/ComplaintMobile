@@ -1,21 +1,31 @@
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   SafeAreaView,
-  StatusBar,
   ScrollView,
   TouchableOpacity,
   Alert,
   Button,
   Image,
+  Keyboard,
 } from "react-native";
-import React, { useState, useContext, useEffect } from "react";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { useNavigation } from "@react-navigation/native";
 import { mainColor, formTextColor, mainUrl } from "../../Constants";
-import FormText from "../components/FormText";
 import * as Animatable from "react-native-animatable";
-import FormPicker from "../components/FormPicker";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import useCategory from "../hooks/useCategory";
 import useComplaintType from "../hooks/useComplaintType";
 import useComplaintTypeSummary from "../hooks/useComplaintTypeSummary";
@@ -31,13 +41,26 @@ const CreateComplaintScreen = (props) => {
   const [complaintType] = useComplaintType();
   const [complaintTypeSummary] = useComplaintTypeSummary();
   const [organizations] = useOrganization();
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [filteredOrganizations, setFilteredOrganizations] = useState([]);
   const [filteredSummary, setFilteredSummary] = useState([]);
-  const [resetPicker, setResetPicker] = useState(false);
   const [image, setImage] = useState(null);
-  const [selectedLabel, setSelectedLabel] = useState("Choose");
   const navigation = useNavigation();
+  const bottomSheetRef = useRef(null);
+  const [pickerData, setPickerData] = useState([]);
+  const [selectedPicker, setSelectedPicker] = useState(null);
+
+  const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
+
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={1}
+        disappearsOnIndex={-1}
+      />
+    ),
+    []
+  );
 
   const initialUserData = {
     lastname: "",
@@ -53,7 +76,6 @@ const CreateComplaintScreen = (props) => {
   };
 
   const [userData, setUserData] = useState(initialUserData);
-  // console.log("user====", user);
 
   const initialFormData = {
     category_id: "",
@@ -69,13 +91,7 @@ const CreateComplaintScreen = (props) => {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  const [error, setError] = useState({
-    category_id: false,
-    complaint_type_id: false,
-    complaint_type_summary_id: false,
-    organization_id: false,
-    complaint: false,
-  });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setUserData({
@@ -90,18 +106,16 @@ const CreateComplaintScreen = (props) => {
       phone: user.phone != null ? user.phone : 0,
       email: user.email != null ? user.email : "",
     });
-    // Filter organizations based on energy_type_id
+
     if (formData.energy_type_id) {
       const filtered = organizations.filter(
         (org) => org.plant_id == formData.energy_type_id
       );
       setFilteredOrganizations(filtered);
-      // console.log("=======", filteredOrganizations);
     } else {
       setFilteredOrganizations([]);
     }
 
-    // Filter organizations based on energy_type_id
     if (formData.energy_type_id && formData.complaint_type_id) {
       const filtered = complaintTypeSummary.filter(
         (item) =>
@@ -109,7 +123,6 @@ const CreateComplaintScreen = (props) => {
           item.complaint_type_id == formData.complaint_type_id
       );
       setFilteredSummary(filtered);
-      console.log("=======", filteredSummary);
     } else {
       setFilteredSummary([]);
     }
@@ -120,50 +133,81 @@ const CreateComplaintScreen = (props) => {
     organizations,
   ]);
 
-  const sendComplaint = () => {
-    const allFormData = { ...userData, ...formData };
+  const sendComplaint = async () => {
+    try {
+      const allFormData = { ...userData, ...formData };
 
-    // console.log("==========", allFormData);
+      // Validate required fields
 
-    axios
-      .post(`${mainUrl}/api/complaints`, allFormData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        // Fetch updated complaints after adding a new complaint
-        console.log("complaint created successfully..");
-        // console.log("res: ", res.data.data);
+      if (!formData.category_id) {
+        setError("Ангилал сонгоно уу");
+        return;
+      }
+      if (!formData.complaint_type_id) {
+        setError("Гомдлын төрөл сонгоно уу");
+        return;
+      }
+      if (!formData.complaint_type_summary_id) {
+        setError("Гомдлын товч утга сонгоно уу");
+        return;
+      }
+      if (!formData.organization_id) {
+        setError("Холбогдох ТЗЭ сонгоно уу");
+        return;
+      }
+      if (!formData.complaint.trim()) {
+        setError("Санал хүсэлтээ оруулна уу");
+        return;
+      }
 
-        const newComplaint = res.data.data;
-        uploadImage(newComplaint.id);
+      setError(""); // Clear any previous error if validation passed
 
-        resetForm();
-        setResetPicker(true);
-        navigation.navigate("ComplaintListScreen", {
-          newComplaint: res.data.data,
-        });
-      })
-      .catch((error) => {
-        Alert.alert("Error create complaint: ", error);
+      // Make the API request
+      const response = await axios.post(
+        `${mainUrl}/api/complaints`,
+        allFormData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Handle response
+      const newComplaint = response.data.data;
+      await uploadImage(newComplaint.id); // If uploadImage is async
+
+      resetForm();
+
+      navigation.navigate("ComplaintListScreen", {
+        newComplaint: newComplaint,
       });
+    } catch (error) {
+      // Check if the error is from axios
+      if (error.response) {
+        Alert.alert(
+          "Server Error",
+          `Status: ${error.response.status}. ${
+            error.response.data.message || error.message
+          }`
+        );
+      } else {
+        Alert.alert("Request Error", error.message);
+      }
+    }
   };
 
-  const checkComplaint = (text) => {
-    // setError({
-    //   ...error,
-    //   complaint: text.length < 10 || text.length > 100,
-    // });
-    setFormData({
-      ...formData,
-      complaint: text,
-    });
+  const openPicker = (pickerName, data) => {
+    setPickerData(data);
+    setSelectedPicker(pickerName);
+    bottomSheetRef.current?.expand();
+  };
+  const closeBottomSheet = () => {
+    bottomSheetRef.current?.close();
   };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -176,8 +220,7 @@ const CreateComplaintScreen = (props) => {
     }
   };
 
-  const uploadImage = (complaint_id) => {
-    console.log("image=====", image);
+  const uploadImage = async (complaint_id) => {
     if (!image) return;
 
     const formData = new FormData();
@@ -187,176 +230,221 @@ const CreateComplaintScreen = (props) => {
       type: "image/jpeg",
     });
 
-    axios
-      .post(`${mainUrl}/api/upload/${complaint_id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        console.log("Image uploaded successfully", response.data);
-        setImage(null);
-      })
-      .catch((error) => {
-        console.error("Error uploading image", error.response.data);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.errors
-        ) {
-          const errorMessages = error.response.data.errors.file.join(", ");
-          Alert.alert("Upload Error", errorMessages);
-        } else {
-          console.error("Error uploading image", error.message);
-          Alert.alert(
-            "Upload Error",
-            "An error occurred while uploading the image."
-          );
+    try {
+      const response = await axios.post(
+        `${mainUrl}/api/upload/${complaint_id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
-        setImage(null);
-      });
+      );
+
+      setImage(null);
+      console.log("Image uploaded successfully:", response.data);
+    } catch (error) {
+      console.error(
+        "Error uploading image",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const resetForm = () => {
     setFormData(initialFormData);
-    setIsSubmitted(false);
-    setError({
-      category_id: false,
-      complaint_type_id: false,
-      complaint_type_summary_id: false,
-      organization_id: false,
-      complaint: false,
-    });
+    setError("");
     setImage(null);
-    console.log("Form resetted...");
   };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#fff", marginBottom: 50 }}
-      showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container}>
       <Animatable.View
         animation="fadeInUpBig"
         duration={1500}
-        style={{
-          flex: 9,
-          paddingVertical: 10,
-          paddingHorizontal: 20,
-          backgroundColor: "#fff",
-          borderTopLeftRadius: 30,
-          borderTopRightRadius: 30,
-        }}>
+        style={styles.animatableView}>
         <ScrollView>
           <FormRadioButton
             label="Энергийн төрөл сонгоно уу:"
             value={formData.energy_type_id}
-            // icon="layers"
-            onValueChange={(value, index) => {
-              console.log("energy id: ", value);
+            onValueChange={(value) => {
               setFormData({ ...formData, energy_type_id: value });
             }}
           />
-          <FormPicker
-            label="Төрөл:"
-            value={formData.category_id}
-            isSubmitted={isSubmitted}
-            icon="layers"
-            data={categories.map((el) => el.name)}
-            values={categories.map((el) => el.id)}
-            onValueChange={(value, index) => {
-              console.log("category_id: ", value);
-              setFormData({ ...formData, category_id: value });
-            }}
-            reset={resetPicker}
-          />
-          <FormPicker
-            label="Гомдлын төрөл:"
-            value={formData.complaint_type_id}
-            isSubmitted={isSubmitted}
-            icon="layers"
-            data={complaintType.map((el) => el.name)}
-            values={complaintType.map((el) => el.id)}
-            onValueChange={(value, index) => {
-              console.log("complaint_type_id: ", value);
-              setFormData({ ...formData, complaint_type_id: value });
-            }}
-            reset={resetPicker}
-          />
-          <FormPicker
-            label="Гомдлын товч утга:"
-            value={formData.complaint_type_summary_id}
-            isSubmitted={isSubmitted}
-            icon="layers"
-            data={filteredSummary.map((el) => el.name)}
-            values={filteredSummary.map((el) => el.id)}
-            onValueChange={(value, index) => {
-              console.log("complaint_type_summary_id: ", value);
-              setFormData({ ...formData, complaint_type_summary_id: value });
-            }}
-            reset={resetPicker}
-          />
-          <FormPicker
-            label="Холбогдох ТЗЭ:"
-            value={formData.organization_id}
-            isSubmitted={isSubmitted}
-            icon="home"
-            data={filteredOrganizations.map((el) => el.name)}
-            values={filteredOrganizations.map((el) => el.id)}
-            onValueChange={(value, index) => {
-              console.log("org_id: ", value);
-              setFormData({ ...formData, organization_id: value });
-            }}
-            reset={resetPicker}
-          />
-          <FormText
-            label="Санал хүсэлт"
+          <TouchableOpacity
+            style={styles.pickerContainer}
+            onPress={() => openPicker("category_id", categories)}>
+            <Text style={styles.pickerText}>
+              Ангилал:{" "}
+              {categories.find((cat) => cat.id === formData.category_id)
+                ?.name || "Сонгох"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.pickerContainer}
+            onPress={() => openPicker("complaint_type_id", complaintType)}>
+            <Text style={styles.pickerText}>
+              Гомдлын төрөл:{" "}
+              {complaintType.find((ct) => ct.id === formData.complaint_type_id)
+                ?.name || "Сонгох"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.pickerContainer}
+            onPress={() =>
+              // openPicker("complaint_type_summary_id", filteredSummary)
+              {
+                if (!formData.category_id || !formData.complaint_type_id) {
+                  Alert.alert(
+                    "Анхааруулга",
+                    "Ангилал болон гомдлын төрөл сонгогдоогүй байна. Эхлээд ангилал болон гомдлын төрөл сонгоно уу."
+                  );
+                } else {
+                  openPicker("complaint_type_summary_id", filteredSummary);
+                }
+              }
+            }>
+            <Text style={styles.pickerText}>
+              Гомдлын товч утга:{" "}
+              {filteredSummary.find(
+                (sum) => sum.id === formData.complaint_type_summary_id
+              )?.name || "Сонгох"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.pickerContainer}
+            onPress={() =>
+              openPicker("organization_id", filteredOrganizations)
+            }>
+            <Text style={styles.pickerText}>
+              Холбогдох ТЗЭ:{" "}
+              {filteredOrganizations.find(
+                (org) => org.id === formData.organization_id
+              )?.name || "Сонгох"}
+            </Text>
+          </TouchableOpacity>
+
+          <TextInput
+            style={styles.textInput} // Add your styles for the TextInput
             placeholder="Санал хүсэлтээ бичнэ үү"
-            // icon="edit"
-            style={{ height: 100, marginBottom: 20 }}
             multiline
             numberOfLines={10}
             autoCapitalize="none"
             autoCorrect={false}
+            maxLength={1000} // Sets a limit of 200 characters
             value={formData.complaint}
-            onChangeText={checkComplaint}
-            // errorText="Текстийн урт 10 тэмдэгтээс багагүй байна"
-            // errorShow={error.complaint}
+            onChangeText={(text) => {
+              setFormData({ ...formData, complaint: text });
+              setError("");
+            }}
           />
+          <Text style={{ textAlign: "right", color: "#888" }}>
+            {formData.complaint.length} / 1000
+          </Text>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
           {image && <Image source={{ uri: image }} style={styles.image} />}
           <Button title="Файл хавсаргах" onPress={pickImage} />
-          {/* <Button title="Upload" onPress={() => uploadImage(347)} /> */}
-          <TouchableOpacity
-            style={{
-              alignItems: "center",
-              backgroundColor: mainColor,
-              padding: 10,
-              marginTop: 20,
-              borderRadius: 10,
-              marginBottom: 50,
-            }}
-            onPress={sendComplaint}>
-            <Text style={{ color: "#fff", paddingVertical: 5, fontSize: 18 }}>
-              Илгээх
-            </Text>
+          <TouchableOpacity style={styles.submitButton} onPress={sendComplaint}>
+            <Text style={styles.submitButtonText}>Илгээх</Text>
           </TouchableOpacity>
         </ScrollView>
       </Animatable.View>
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        // backgroundStyle={{ backgroundColor: "#fff" }}
+        onClose={closeBottomSheet}>
+        <BottomSheetView>
+          <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+            {pickerData.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={styles.optionContainer}
+                onPress={() => {
+                  setFormData({ ...formData, [selectedPicker]: option.id });
+                  bottomSheetRef.current?.close();
+                  closeBottomSheet();
+                }}>
+                <Text style={styles.optionText}>{option.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   );
 };
 
+export default CreateComplaintScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "#fff",
   },
-  image: {
-    width: 100,
-    height: 100,
+  animatableView: { flex: 1, padding: 16 },
+  submitButton: {
+    backgroundColor: mainColor,
+    padding: 16,
+    borderRadius: 8,
     marginTop: 10,
   },
+  submitButtonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  image: { width: 100, height: 100, marginVertical: 8 },
+  pickerContainer: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginVertical: 8,
+    backgroundColor: "#EAF0F1",
+  },
+  pickerText: {
+    fontSize: 16,
+    color: formTextColor,
+  },
+  optionContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: "#EAF0F1",
+    borderRadius: 8,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    margin: 10,
+  },
+  optionText: {
+    fontSize: 16,
+    color: formTextColor,
+    textAlign: "center",
+  },
+  textInput: {
+    height: 120, // Adjust height as needed
+    backgroundColor: "#EAF0F1",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 10,
+    fontSize: 16,
+    color: "#333",
+    textAlignVertical: "top",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
+  },
 });
-
-export default CreateComplaintScreen;

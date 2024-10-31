@@ -48,7 +48,7 @@ const ComplaintItem = ({ complaint }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 80,
+    height: 100,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
@@ -94,6 +94,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
+    // marginBottom: 10,
+    // backgroundColor: "red",
   },
 });
 

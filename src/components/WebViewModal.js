@@ -1,4 +1,3 @@
-// WebViewModal.js
 import React, { useState, useEffect, useContext } from "react";
 import { isEmpty } from "lodash";
 import axios from "axios";
@@ -6,7 +5,6 @@ import qs from "qs";
 import {
   View,
   Modal,
-  Button,
   StyleSheet,
   TouchableWithoutFeedback,
   ActivityIndicator,
@@ -31,19 +29,12 @@ const WebViewModal = ({ visible, onClose }) => {
     }
   }, [visible]);
 
-  // useEffect(() => {
-  //   if (authCode) {
-  //     getUserDataEmongolia(authCode);
-  //   }
-  // }, [authCode]);
-
   const handleGenerateString = () => {
     const newString = generateRandomString(40);
     setUri(
       `https://sso.gov.mn/login?next=%2Foauth2%2Fauthorize%3Fclient_id%3D126fd50e9623fb78609b4bf0-408fe89c0088f404ea3c8f76add3f081%26redirect_uri%3Dhttps%253A%252F%252Fconsumer.energy.mn%252Fauth%252Fcallback%26scope%3DW3sic2VydmljZXMiOiBbIldTMTAwMTAxX2dldENpdGl6ZW5JRENhcmRJbmZvIl0sICJ3c2RsIjogImh0dHBzOi8veHlwLmdvdi5tbi9jaXRpemVuLTEuMy4wL3dzP1dTREwifV0%253D%26response_type%3Dcode%26state=${newString}`
     );
   };
-  // console.log(uri);
 
   const getUserDataEmongolia = async (code) => {
     const obj = {
@@ -65,12 +56,8 @@ const WebViewModal = ({ visible, onClose }) => {
         }
       );
 
-      console.log("Token Response: ", tokenResponse); // Log entire response for debugging
-
       if (tokenResponse && tokenResponse.data) {
         const token = tokenResponse.data;
-
-        console.log("Access token: ", token.access_token);
 
         const headers = { Authorization: "Bearer " + token.access_token };
 
@@ -86,26 +73,14 @@ const WebViewModal = ({ visible, onClose }) => {
           const res =
             dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
               ?.response;
-          // setDanuser(res);
           login(res);
-
-          // setTimeout(() => {
-          //   console.log("res===", res);
-          //   setDanuser(res);
-          //   setLoading(true);
-
-          //   console.log("Login start...");
-          // }, 2000);
         }
       } else {
-        // Handle case where tokenResponse doesn't contain data
-        console.error("Token response is empty or invalid.");
         Alert.alert("Login failed", "No data received from the server.");
       }
     } catch (error) {
       console.error("Error during API call:", error);
       Alert.alert("Login failed", "An error occurred while fetching data.");
-      // onClose();
     }
   };
 
@@ -115,38 +90,34 @@ const WebViewModal = ({ visible, onClose }) => {
       transparent={true}
       animationType="slide"
       onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback>
-            <View style={styles.modalContent}>
-              <WebView
-                source={{
-                  uri: uri,
-                }}
-                startInLoadingState={true}
-                javaScriptEnabled={true}
-                domStorageEnabled={true}
-                onNavigationStateChange={(state) => {
-                  // console.log(state);
-                  if (
-                    state.url.indexOf(
-                      "https://consumer.energy.mn/auth/callback"
-                    ) === 0
-                  ) {
-                    const code = /\?code=(.+)&expires/.exec(state.url);
+      <View style={styles.modalOverlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
 
-                    if (!isEmpty(code) && !isEmpty(code[0])) {
-                      getUserDataEmongolia(code);
-                      // setAuthCode(code); // Set the auth code
-                      onClose();
-                    }
-                  }
-                }}
-              />
-            </View>
-          </TouchableWithoutFeedback>
+        <View style={styles.modalContent}>
+          <WebView
+            source={{ uri: uri }}
+            startInLoadingState={true}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            onNavigationStateChange={(state) => {
+              if (
+                state.url.indexOf(
+                  "https://consumer.energy.mn/auth/callback"
+                ) === 0
+              ) {
+                const code = /\?code=(.+)&expires/.exec(state.url);
+
+                if (!isEmpty(code) && !isEmpty(code[0])) {
+                  getUserDataEmongolia(code);
+                  onClose();
+                }
+              }
+            }}
+          />
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 };
@@ -157,6 +128,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   modalContent: {
     width: "90%",

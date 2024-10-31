@@ -1,23 +1,17 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { formTextColor } from "../../Constants";
 
 const FormPicker = (props) => {
-  const navigation = useNavigation();
+  // console.log(props);
   const [selectedLabel, setSelectedLabel] = useState("Сонгох");
 
-  const handleItemPress = () => {
-    navigation.navigate("ItemSelectionScreen", {
-      data: props.data.map((label, index) => ({
-        label,
-        value: props.values[index],
-      })),
-      onValueChange: (newValue, newLabel) => {
-        props.onValueChange(newValue); // Update the selected value in the parent component
-        setSelectedLabel(newLabel);
-      },
+  const handlePress = () => {
+    props.openBottomSheet(props.data, (value, label) => {
+      props.onValueChange(value);
+      setSelectedLabel(label);
+      // console.log(label);
     });
   };
 
@@ -26,7 +20,7 @@ const FormPicker = (props) => {
       <Text style={{ fontSize: 16, paddingTop: 15, color: formTextColor }}>
         {props.label}
       </Text>
-      <TouchableOpacity onPress={handleItemPress} style={styles.touchable}>
+      <TouchableOpacity onPress={handlePress} style={styles.touchable}>
         <FeatherIcon name={props.icon} size={20} color={formTextColor} />
         <Text style={styles.touchableText}>{selectedLabel}</Text>
       </TouchableOpacity>

@@ -125,8 +125,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#1d1d1d",
+    paddingBottom: 5,
     marginBottom: 10,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
   },
   /** Card */
   card: {

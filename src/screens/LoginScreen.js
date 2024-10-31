@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import WebViewModal from "../components/WebViewModal";
 import axios from "axios";
@@ -33,92 +35,98 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${mainUrl}/api/loginEmail`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://consumer.energy.mn/api/loginEmail",
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.data.token) {
-        console.log(response.data);
         setToken(response.data.token);
         setUser(response.data.user);
         setIsLoggedIn(true);
-        // Alert.alert("Login Successful", "You are now logged in.");
       } else {
-        // Alert.alert("Login Failed", "Invalid email or password.");
         Alert.alert(
           "Амжилтгүй",
           response.data.error || "Мэйл хаяг эсвэл нууц үг буруу байна."
         );
       }
     } catch (error) {
-      console.log(error);
-      Alert.alert(
-        "Амжилтгүй",
-        error.response?.data?.error || "Алдаа гарлаа. Дахин оролдоно уу."
-      );
+      if (error.response) {
+        Alert.alert(
+          "Амжилтгүй",
+          "Серверийн алдаа: " + error.response.data.error
+        );
+      } else if (error.request) {
+        Alert.alert("Амжилтгүй", "Сервертэй холбогдох боломжгүй байна.");
+      } else {
+        Alert.alert("Амжилтгүй", "Алдаа гарлаа: " + error.message);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../../assets/images/background.png")}
-        resizeMode="cover"
-        style={styles.image}>
-        <View style={styles.centeredContent}>
-          <Image
-            source={require("../../assets/images/hero.png")}
-            style={styles.hero}
-            resizeMode="contain"
-          />
-          <Image
-            source={require("../../assets/images/logo_white.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          {/* <Text style={styles.desc}>
-            Эрчим хүч хэрэглэгч иргэн, аж ахуйн нэгжээс эрчим хүчний зохицуулах
-            хороо болон цахилгаан дулаан түгээх, хангах тусгай зөвшөөрөл
-            эзэмшигчид санал, хүсэлт, өргөдөл, гомдол гаргах
-          </Text> */}
-        </View>
-        <View style={styles.loginForm}>
-          <Text style={styles.title}>Өргөдөл, гомдлын цахим систем</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Мэйл хаяг"
-            placeholderTextColor="#ccc"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Нууц үг"
-            placeholderTextColor="#ccc"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleLogin}
-            disabled={loading}>
-            <Text style={styles.buttonText}>
-              {loading ? "Logging in..." : "Нэвтрэх"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryButton} onPress={openModal}>
-            <Text style={styles.secondaryButtonText}>ДАН Нэвтрэх</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
-      <WebViewModal visible={modalVisible} onClose={closeModal} />
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../../assets/images/background.png")}
+          resizeMode="cover"
+          style={styles.image}>
+          <View style={styles.centeredContent}>
+            <Image
+              source={require("../../assets/images/hero.png")}
+              style={styles.hero}
+              resizeMode="contain"
+            />
+            <Image
+              source={require("../../assets/images/logo_white.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.loginForm}>
+            <Text style={styles.title}>Өргөдөл, гомдлын цахим систем</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Мэйл хаяг"
+              placeholderTextColor="#ccc"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Нууц үг"
+              placeholderTextColor="#ccc"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              disabled={loading}>
+              <Text style={styles.buttonText}>
+                {loading ? "Уншиж байна..." : "Нэвтрэх"}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={openModal}>
+              <Text style={styles.secondaryButtonText}>ДАН Нэвтрэх</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+        <WebViewModal visible={modalVisible} onClose={closeModal} />
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -143,13 +151,6 @@ const styles = StyleSheet.create({
     height: 60,
     marginBottom: 50,
   },
-  desc: {
-    color: "white",
-    fontSize: 12,
-    marginHorizontal: 20,
-    marginBottom: 50,
-    textAlign: "center",
-  },
   loginForm: {
     flex: 2,
     justifyContent: "space-between",
@@ -162,7 +163,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
     textAlign: "center",
-    // marginTop: 5,
     marginBottom: 5,
   },
   input: {

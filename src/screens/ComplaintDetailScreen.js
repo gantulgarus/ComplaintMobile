@@ -132,13 +132,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   infoText: {
-    color: "#1E3A8A", // Equivalent to text-blue-900
-    backgroundColor: "#DBEAFE", // Equivalent to bg-blue-100
-    fontSize: 14, // Equivalent to text-sm
-    paddingVertical: 2, // Equivalent to py-1
-    paddingHorizontal: 4, // Equivalent to px-2
-    margin: 2, // Equivalent to m-2 and mr-2
-    borderRadius: 4, // Equivalent to rounded-md
+    backgroundColor: "#e0e0e0", // Light grey background for tags
+    borderRadius: 15, // Rounded edges
+    paddingVertical: 5, // Vertical padding
+    paddingHorizontal: 10, // Horizontal padding
+    marginRight: 8, // Space between tags
+    marginBottom: 8, // Space between rows of tags
+    fontSize: 10, // Font size for the text
+    color: "#333", // Text color
+    overflow: "hidden", // Prevents text overflow
   },
   name: {
     fontSize: 20,
