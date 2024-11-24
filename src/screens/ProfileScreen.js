@@ -11,9 +11,11 @@ import {
 } from "react-native";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const { user } = useContext(AuthContext);
+  const navigation = useNavigation();
   const [form, setForm] = useState({
     emailNotifications: true,
     pushNotifications: false,
@@ -99,36 +101,40 @@ export default function ProfileScreen() {
                   <Text style={styles.rowValue}>{user?.danBagKhorooName}</Text>
                 </View>
               </View>
+              <View style={styles.rowWrapper}>
+                <Text style={styles.rowLabel}>Дэлгэрэнгүй хаяг</Text>
+                <Text style={styles.rowValueTextbox}>
+                  {user?.danPassportAddress}
+                </Text>
+              </View>
             </View>
           </View>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Системийн мэдээлэл</Text>
             <View style={styles.sectionBody}>
               <View style={styles.rowWrapper}>
-                <TouchableOpacity
-                  onPress={() => {
-                    // handle onPress
-                  }}
-                  style={styles.row}>
+                <View style={styles.row}>
                   <Text style={styles.rowLabel}>Имэйл</Text>
                   <View style={styles.rowSpacer} />
                   <Text style={styles.rowValue}>{user?.email}</Text>
-                  <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
-                </TouchableOpacity>
+                </View>
               </View>
               <View style={styles.rowWrapper}>
-                <TouchableOpacity
-                  onPress={() => {
-                    // handle onPress
-                  }}
-                  style={styles.row}>
+                <View style={styles.row}>
                   <Text style={styles.rowLabel}>Утас</Text>
                   <View style={styles.rowSpacer} />
                   <Text style={styles.rowValue}>{user?.phone}</Text>
-                  <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
-                </TouchableOpacity>
+                </View>
               </View>
             </View>
+          </View>
+          {/* Edit Profile Button */}
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => navigation.navigate("EditProfileScreen")}>
+              <Text style={styles.editButtonText}>Засах</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
@@ -261,6 +267,13 @@ const styles = StyleSheet.create({
     color: "#ababab",
     marginRight: 4,
   },
+  rowValueTextbox: {
+    fontSize: 14,
+    paddingVertical: 4,
+    fontWeight: "500",
+    color: "#ababab",
+    marginRight: 4,
+  },
   rowLast: {
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
@@ -270,5 +283,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
     color: "#dc2626",
+  },
+  editButton: {
+    marginVertical: 10,
+    padding: 12,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  editButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
 });

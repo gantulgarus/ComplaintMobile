@@ -4,7 +4,7 @@
     "scheme": "econsumer",
     "description": "Дуудлага, гомдлын бүртгэл, хяналтын нэгдсэн цахим систем.",
     "slug": "econsumer",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,7 +24,6 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to allow users to upload photos."
       },
-      "buildNumber": "1.0.12",
       "bundleIdentifier": "mn.consumer.energy",
       "entitlements": {
         "aps-environment": "production"

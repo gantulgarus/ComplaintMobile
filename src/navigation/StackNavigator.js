@@ -9,6 +9,7 @@ import ComplaintDetailScreen from "../screens/ComplaintDetailScreen";
 import CreateComplaintScreen from "../screens/CreateComplaintScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import ItemSelectionScreen from "../screens/ItemSelectionScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +64,11 @@ const StackNavigator = () => {
             component={ItemSelectionScreen}
             options={{ title: "Сонгох" }}
             // options={{ header: () => <CustomHeader title="Дэлгэрэнгүй" /> }}
+          />
+          <Stack.Screen
+            name="EditProfileScreen"
+            component={EditProfileScreen}
+            options={{ title: "Мэдээлэл засах" }}
           />
         </>
       ) : (

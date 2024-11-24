@@ -32,7 +32,37 @@ const Login = () => {
     setModalVisible(false);
   };
 
+  // Email Validation
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return regex.test(email);
+  };
+
+  // Password Validation
+  const validatePassword = (password) => {
+    return password.length >= 6; // Ensure password is at least 6 characters
+  };
+
   const handleLogin = async () => {
+    // Check if the email or password is empty
+    if (!email) {
+      Alert.alert("Алдаа", "Мэйл хаягаа оруулна уу.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Алдаа", "Нууц үгээ оруулна уу.");
+      return;
+    }
+    // Validation checks
+    if (!email || !validateEmail(email)) {
+      Alert.alert("Алдаа", "Мэйл хаяг буруу байна.");
+      return;
+    }
+    // if (!password || !validatePassword(password)) {
+    //   Alert.alert("Алдаа", "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой.");
+    //   return;
+    // }
+
     setLoading(true);
     try {
       const response = await axios.post(
@@ -55,10 +85,7 @@ const Login = () => {
       }
     } catch (error) {
       if (error.response) {
-        Alert.alert(
-          "Амжилтгүй",
-          "Серверийн алдаа: " + error.response.data.error
-        );
+        Alert.alert("Амжилтгүй", error.response.data.error);
       } else if (error.request) {
         Alert.alert("Амжилтгүй", "Сервертэй холбогдох боломжгүй байна.");
       } else {

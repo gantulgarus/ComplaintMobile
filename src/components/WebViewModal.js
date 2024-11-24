@@ -73,7 +73,8 @@ const WebViewModal = ({ visible, onClose }) => {
           const res =
             dataResponse.data[1]?.services?.WS100101_getCitizenIDCardInfo
               ?.response;
-          login(res);
+          console.log("res==", res);
+          await login(res);
         }
       } else {
         Alert.alert("Login failed", "No data received from the server.");

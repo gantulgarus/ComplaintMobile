@@ -25,6 +25,7 @@ import * as Animatable from "react-native-animatable";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
+  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import useCategory from "../hooks/useCategory";
 import useComplaintType from "../hooks/useComplaintType";
@@ -361,10 +362,12 @@ const CreateComplaintScreen = (props) => {
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         backdropComponent={renderBackdrop}
-        // backgroundStyle={{ backgroundColor: "#fff" }}
-        onClose={closeBottomSheet}>
-        <BottomSheetView>
-          <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+        onClose={closeBottomSheet}
+        enableContentPanningGesture={false}>
+        <BottomSheetView style={{ flex: 1 }}>
+          <BottomSheetScrollView
+            contentContainerStyle={styles.scrollContentContainer}
+            keyboardShouldPersistTaps="handled">
             {pickerData.map((option) => (
               <TouchableOpacity
                 key={option.id}
@@ -377,7 +380,7 @@ const CreateComplaintScreen = (props) => {
                 <Text style={styles.optionText}>{option.name}</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </BottomSheetScrollView>
         </BottomSheetView>
       </BottomSheet>
     </SafeAreaView>
@@ -446,5 +449,9 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginBottom: 10,
+  },
+  scrollContentContainer: {
+    flexGrow: 1, // Ensures content stretches and scrolls correctly
+    paddingBottom: 20, // Adds padding for a better scroll experience
   },
 });
