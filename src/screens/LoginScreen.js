@@ -15,6 +15,7 @@ import WebViewModal from "../components/WebViewModal";
 import axios from "axios";
 import { mainUrl } from "../../Constants";
 import { AuthContext } from "../context/AuthContext";
+import SlideShow from "../components/SlideShow";
 
 const Login = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -23,6 +24,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const { setToken, setUser, setIsLoggedIn } = useContext(AuthContext);
+  const [showSlides, setShowSlides] = useState(true);
 
   const openModal = () => {
     setModalVisible(true);
@@ -95,6 +97,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (showSlides) {
+    return <SlideShow onClose={() => setShowSlides(false)} />;
+  }
 
   return (
     <KeyboardAvoidingView
