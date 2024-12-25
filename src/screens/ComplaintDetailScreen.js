@@ -114,7 +114,7 @@ const ComplaintDetailScreen = ({ route }) => {
         </View>
       </View>
       <Divider />
-      <Timeline items={steps} />
+      <Timeline complaint={complaint} items={steps} />
     </View>
   );
 };

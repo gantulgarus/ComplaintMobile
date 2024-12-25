@@ -1,4 +1,4 @@
-export const faqs = [
+export const faqEnergy = [
   {
     id: 1,
     question: "1. Шөнийн тарифын хөнгөлөлтөд яаж хамрагдах вэ?",

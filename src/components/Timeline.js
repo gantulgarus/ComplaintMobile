@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -11,10 +11,59 @@ import FileModal from "./FileModal";
 import { getFileExtension, getStatusColor } from "../utils/Helper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import FeatherIcon from "react-native-vector-icons/Feather";
-import { mainColor } from "../../Constants";
+import { mainColor, mainUrl } from "../../Constants";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Timeline({ items }) {
+export default function Timeline({ complaint, items }) {
+  const { token } = useContext(AuthContext);
+  const navigation = useNavigation();
   // console.log(items);
+
+  const now = new Date(); // Current date and time
+  const expireDate = new Date();
+  console.log("now", now.toLocaleString()); // Print in local timezone
+  expireDate.setDate(now.getDate() + 7); // Add 7 days to the current date
+
+  const handleComplaint = async (complaintId) => {
+    try {
+      // Replace with your actual API endpoint
+      const apiUrl = `${mainUrl}/api/complaints/${complaintId}`;
+
+      const updatedData = {
+        status_id: 0, // Төлөв шинээр ирсэн болгох
+        second_org_id: complaint.organization_id, // Холбогдох ТЗЭ
+        organization_id: 99, // ЭХЗХ-д илгээх
+        expire_date: expireDate.toISOString().split("T")[0], // Format as YYYY-MM-DD Шийдвэрлэх хцгацааг 7 хоног болгох
+      };
+
+      // Make the API call
+      const response = await fetch(apiUrl, {
+        method: "PATCH", // Use PATCH or PUT as needed
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add token if required
+        },
+        body: JSON.stringify(updatedData), // Updated complaint data
+      });
+
+      // Check response status
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // Handle success
+      Alert.alert("Амжилттай", "Гомдлын мэдээлэл амжилттай шинэчлэгдлээ.");
+      console.log("Complaint updated successfully:", result);
+      navigation.navigate("ComplaintListScreen");
+    } catch (error) {
+      // Handle errors
+      Alert.alert("Алдаа", "Гомдлын мэдээллийг шинэчлэх явцад алдаа гарлаа.");
+      console.error("Error updating complaint:", error);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -75,43 +124,62 @@ export default function Timeline({ items }) {
                 </View>
               </View>
             </View>
-            {item.status == "Шийдвэрлэсэн" && (
-              <View
-                style={{
-                  padding: 10,
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}>
-                {/* <Text style={{ color: "gray", marginVertical: 10 }}>
-                  Өргөдөл, гомдлын шийдвэрлэлттэй санал нийлэхгүй байвал ЭХЗХ-нд
-                  дахин гомдол гаргах боломжтой.
-                </Text>
-                <TouchableOpacity
-                  style={{
-                    width: "100%",
-                    borderWidth: 1,
-                    borderColor: mainColor,
-                    borderRadius: 10,
-                    paddingVertical: 10,
-                    paddingHorizontal: 20,
-                    alignItems: "center",
-                  }}
-                  onPress={() => Alert.alert("Button Pressed!")}>
-                  <Text
-                    style={{
-                      color: mainColor,
-                      fontSize: 16,
-                      fontWeight: "bold",
-                    }}>
-                    Гомдол гаргах
-                  </Text>
-                </TouchableOpacity> */}
-              </View>
-            )}
           </View>
         );
       })}
+
+      {complaint.status == "Шийдвэрлэсэн" &&
+        complaint.organization_id !== 99 && (
+          <View
+            style={{
+              padding: 10,
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}>
+            <Text style={{ color: "gray", marginVertical: 10 }}>
+              Өргөдөл, гомдлын шийдвэрлэлттэй санал нийлэхгүй байвал Эрчим
+              хүчний зохицуулах хороонд дахин гомдол гаргах боломжтой.
+            </Text>
+            <TouchableOpacity
+              style={{
+                width: "100%",
+                borderWidth: 1,
+                borderColor: mainColor,
+                borderRadius: 10,
+                paddingVertical: 10,
+                paddingHorizontal: 20,
+                alignItems: "center",
+              }}
+              onPress={() =>
+                Alert.alert(
+                  "Баталгаажуулах",
+                  "Та гомдлоо ЭХЗХ-нд гаргахдаа итгэлтэй байна уу?",
+                  [
+                    {
+                      text: "Үгүй",
+                      onPress: () => console.log("Canceled"),
+                      style: "cancel",
+                    },
+                    {
+                      text: "Тийм",
+                      onPress: () => handleComplaint(complaint.id),
+                    },
+                  ],
+                  { cancelable: false }
+                )
+              }>
+              <Text
+                style={{
+                  color: mainColor,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}>
+                Гомдол гаргах
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
     </ScrollView>
   );
 }
