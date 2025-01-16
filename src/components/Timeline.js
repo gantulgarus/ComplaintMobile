@@ -18,7 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 export default function Timeline({ complaint, items }) {
   const { token } = useContext(AuthContext);
   const navigation = useNavigation();
-  // console.log(items);
+  console.log("complaint in timeline======== ", complaint);
 
   const now = new Date(); // Current date and time
   const expireDate = new Date();
@@ -108,19 +108,27 @@ export default function Timeline({ complaint, items }) {
                   <View style={styles.contentText}>
                     <Text style={styles.cardDesc}>{item.desc}</Text>
                   </View>
-                  {item.fileUrl && (
-                    <View style={{ marginLeft: 30 }}>
+                  {/* Display associated files */}
+                  {
+                    <View style={{ marginTop: 10 }}>
                       <Text style={{ fontSize: 12, color: "gray" }}>
-                        Хавсралт файл
+                        Хавсралт файлууд:
                       </Text>
-                      <FileModal
-                        fileName={item.fileName}
-                        fileExt={getFileExtension(item.fileName)}
-                        fileSizeInKilobytes={1234}
-                        fileUrl={item.fileUrl}
-                      />
+                      {item.files.map((file, fileIndex) => (
+                        <View
+                          key={fileIndex}
+                          style={{ marginLeft: 30, marginTop: 5 }}>
+                          <FileModal
+                            fileName={file.filename}
+                            fileExt={getFileExtension(file.filename)}
+                            // fileSizeInKilobytes={file.fileSize / 1024}
+                            fileSizeInKilobytes={1234}
+                            fileUrl={file.url}
+                          />
+                        </View>
+                      ))}
                     </View>
-                  )}
+                  }
                 </View>
               </View>
             </View>
