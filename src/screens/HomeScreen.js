@@ -5,7 +5,10 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
-  RefreshControl,
+  Button,
+  Modal,
+  TouchableOpacity,
+  Linking,
 } from "react-native";
 import React, { useCallback, useContext, useState } from "react";
 import ComplaintItem from "../components/ComplaintItem";
@@ -17,26 +20,35 @@ import Header from "../components/Header";
 import { mainColor } from "../../Constants";
 import useComplaint from "../hooks/useComplaint";
 import { useFocusEffect } from "@react-navigation/native";
-import { debounce } from "lodash";
 
 const Home = ({ navigation }) => {
   const { user, token } = useContext(AuthContext);
   // console.log("user====", user);
-  const [refreshing, setRefreshing] = useState(false); // Track pull-to-refresh state
   const [refresh, setRefresh] = useState(false); // State to trigger refresh
 
   const [complaints, errorMessage, loading] = useComplaint(refresh, setRefresh);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const dulaanURL =
+    "https://docs.google.com/forms/d/1wEk3Uc04eU3EBwOCTA2he3xkTyKT3YQlM6crtnH6ea0/viewform?edit_requested=true";
+  const togURL =
+    "https://docs.google.com/forms/u/1/d/1eGXuyMr-KJqW8kjbNrYPnnhoU3RHERt4_wKCzahSCb8/viewform?edit_requested=true";
+
+  const openInBrowser = async (url) => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      Linking.openURL(url);
+    } else {
+      alert("Can't open the link");
+    }
+  };
 
   // Function to count complaints by status ID
   const countComplaintsByStatusId = (statusId) => {
     return complaints.filter((complaint) => complaint.status_id == statusId)
       .length;
   };
-
-  // const onRefresh = () => {
-  //   setRefreshing(true); // Start refreshing
-  //   setRefresh(true); // Trigger data fetching
-  // };
 
   useFocusEffect(
     useCallback(() => {
@@ -123,13 +135,6 @@ const Home = ({ navigation }) => {
               data={complaints}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => <ComplaintItem complaint={item} />}
-              // refreshControl={
-              //   <RefreshControl
-              //     refreshing={refresh} // Indicates if the list is refreshing
-              //     onRefresh={onRefresh} // Function to call when pull-to-refresh happens
-              //     colors={[mainColor]} // The color of the refresh spinner
-              //   />
-              // }
             />
           ) : (
             <EmptyData
@@ -138,6 +143,64 @@ const Home = ({ navigation }) => {
             />
           )}
         </View>
+
+        {/* <Button title="Open Info Modal" onPress={() => setModalVisible(true)} /> */}
+
+        {/* Modal Component */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {/* Title */}
+              <Text style={styles.modalTitle}>Санал асуулга</Text>
+              <Text style={{ textAlign: "justify", margin: 10 }}>
+                Эрчим хүчээр хангагч байгууллагын үйл ажиллагаа, бүтээгдэхүүн,
+                үйлчилгээний чанар, хүртээмжийн өнөөгийн байдал, хэрэглэгчийн
+                хэрэгцээ, шаардлагыг тодорхойлох, хангагч байгууллагын
+                үйлчилгээг сайжруулах зорилгоор энэхүү сэтгэл ханамжийн
+                судалгааг авч байна.
+              </Text>
+
+              {/* Google Form Link */}
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  marginTop: 10,
+                }}>
+                Дулаан хангамж
+              </Text>
+              <TouchableOpacity onPress={() => openInBrowser(dulaanURL)}>
+                <Text style={styles.linkText}>
+                  Дулаан хангамжтай холбоотой санал, асуулга (google.com)
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  marginTop: 10,
+                }}>
+                Цахилгаан хангамж
+              </Text>
+              <TouchableOpacity onPress={() => openInBrowser(togURL)}>
+                <Text style={styles.linkText}>
+                  Цахилгаан хангамжтай холбоотой санал, асуулга (google.com)
+                </Text>
+              </TouchableOpacity>
+
+              {/* Close Button */}
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Хаах </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -241,5 +304,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     // backgroundColor: "red",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  linkText: {
+    color: "#1E90FF",
+    fontSize: 12,
+    marginVertical: 5,
+    textDecorationLine: "underline",
+    textAlign: "left",
+  },
+  closeButton: {
+    padding: 10,
+    backgroundColor: "#ff5a5f",
+    alignItems: "center",
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
