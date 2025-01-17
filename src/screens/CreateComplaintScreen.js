@@ -104,7 +104,7 @@ const CreateComplaintScreen = (props) => {
       khoroo: user.danBagKhorooName,
       addressDetail: user.danPassportAddress,
       created_user_id: user.id,
-      phone: user.phone != null ? user.phone : 0,
+      phone: user.phone,
       email: user.email != null ? user.email : "",
     });
 
@@ -156,7 +156,11 @@ const CreateComplaintScreen = (props) => {
         setError("Холбогдох ТЗЭ сонгоно уу");
         return;
       }
-      if (!formData.complaint.trim()) {
+      if (!userData.phone) {
+        setError("Утасны дугаараа оруулна уу");
+        return;
+      }
+      if (!formData.complaint || !formData.complaint.trim()) {
         setError("Санал хүсэлтээ оруулна уу");
         return;
       }
@@ -329,6 +333,27 @@ const CreateComplaintScreen = (props) => {
             </Text>
           </TouchableOpacity>
 
+          <TextInput
+            style={{
+              height: 50,
+              borderColor: "#ccc", // Light gray border color
+              borderWidth: 1,
+              borderRadius: 8, // Rounded corners
+              paddingHorizontal: 15, // Add padding inside the input
+              fontSize: 16, // Adjust font size
+              backgroundColor: "#EAF0F1", // Light background color
+              color: "#05375a", // Text color
+              marginVertical: 10, // Space between inputs
+            }} // Add your styles for the TextInput
+            placeholder="Утасны дугаар"
+            placeholderTextColor="#999"
+            value={userData.phone}
+            keyboardType="phone-pad"
+            onChangeText={(text) => {
+              setUserData({ ...userData, phone: text });
+              setError("");
+            }}
+          />
           <TextInput
             style={styles.textInput} // Add your styles for the TextInput
             placeholder="Санал хүсэлтээ бичнэ үү"

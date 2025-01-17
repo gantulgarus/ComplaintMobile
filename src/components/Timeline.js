@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -6,7 +6,10 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  Modal,
+  TextInput,
 } from "react-native";
+import axios from "axios";
 import FileModal from "./FileModal";
 import { getFileExtension, getStatusColor } from "../utils/Helper";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -18,50 +21,84 @@ import { useNavigation } from "@react-navigation/native";
 export default function Timeline({ complaint, items }) {
   const { token } = useContext(AuthContext);
   const navigation = useNavigation();
-  console.log("complaint in timeline======== ", complaint);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [description, setDescription] = useState(""); // For storing the text input value
+  const [descriptionError, setDescriptionError] = useState(false); // For tracking validation errors
 
   const now = new Date(); // Current date and time
   const expireDate = new Date();
   console.log("now", now.toLocaleString()); // Print in local timezone
   expireDate.setDate(now.getDate() + 7); // Add 7 days to the current date
 
-  const handleComplaint = async (complaintId) => {
+  const resendComplaint = async () => {
     try {
-      // Replace with your actual API endpoint
-      const apiUrl = `${mainUrl}/api/complaints/${complaintId}`;
-
-      const updatedData = {
-        status_id: 0, // Төлөв шинээр ирсэн болгох
+      const formData = {
+        // ...complaint,
+        lastname: complaint.lastname,
+        firstname: complaint.firstname,
+        registerNumber: complaint.registerNumber,
+        country: complaint.country,
+        district: complaint.district,
+        khoroo: complaint.khoroo,
+        addressDetail: complaint.addressDetail,
+        created_user_id: complaint.created_user_id,
+        phone: complaint.phone || 0, // Default to 0 if null
+        email: complaint.email || "", // Default to empty string if null
+        category_id: complaint.category_id,
+        complaint_type_id: complaint.complaint_type_id,
+        complaint_type_summary_id: complaint.complaint_type_summary_id,
+        complaint: complaint.complaint,
+        energy_type_id: complaint.energy_type_id,
+        complaint: complaint.complaint + "\n" + description, // Append new description
+        organization_id: 99, // ЭХЗХ
+        status_id: 0, // Шинэ гомдол
         second_org_id: complaint.organization_id, // Холбогдох ТЗЭ
-        organization_id: 99, // ЭХЗХ-д илгээх
-        expire_date: expireDate.toISOString().split("T")[0], // Format as YYYY-MM-DD Шийдвэрлэх хцгацааг 7 хоног болгох
+        second_status_id: null, // Шинэ гомдол
+        channel_id: 5, // Гар утас апп
+        complaint_maker_type_id: 1, // Иргэн
+        file_id: complaint.file_id,
       };
 
       // Make the API call
-      const response = await fetch(apiUrl, {
-        method: "PATCH", // Use PATCH or PUT as needed
+      const response = await axios.post(`${mainUrl}/api/complaints`, formData, {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Add token if required
         },
-        body: JSON.stringify(updatedData), // Updated complaint data
       });
 
-      // Check response status
-      if (!response.ok) {
+      // Check the status of the response
+      if (response.status >= 200 && response.status < 300) {
+        // Handle success
+        Alert.alert("Амжилттай", "Таны гомдол амжилттай илгээгдлээ.");
+        console.log("Complaint updated successfully:", response.data);
+        navigation.navigate("ComplaintListScreen");
+      } else {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
-
-      const result = await response.json();
-
-      // Handle success
-      Alert.alert("Амжилттай", "Гомдлын мэдээлэл амжилттай шинэчлэгдлээ.");
-      console.log("Complaint updated successfully:", result);
-      navigation.navigate("ComplaintListScreen");
     } catch (error) {
       // Handle errors
-      Alert.alert("Алдаа", "Гомдлын мэдээллийг шинэчлэх явцад алдаа гарлаа.");
-      console.error("Error updating complaint:", error);
+      if (error.response) {
+        // Server responded with a status outside the range of 2xx
+        console.error("Response error:", error.response.data);
+        Alert.alert(
+          "Алдаа",
+          `Серверийн алдаа: ${
+            error.response.data.message || "Мэдээллийг шинэчлэх боломжгүй."
+          }`
+        );
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error("No response received:", error.request);
+        Alert.alert(
+          "Алдаа",
+          "Сүлжээний алдаа. Та интернет холболтоо шалгана уу."
+        );
+      } else {
+        // Something else went wrong
+        console.error("Error:", error.message);
+        Alert.alert("Алдаа", "Гомдлын мэдээллийг илгээх явцад алдаа гарлаа.");
+      }
     }
   };
 
@@ -159,24 +196,7 @@ export default function Timeline({ complaint, items }) {
                 paddingHorizontal: 20,
                 alignItems: "center",
               }}
-              onPress={() =>
-                Alert.alert(
-                  "Баталгаажуулах",
-                  "Та гомдлоо ЭХЗХ-нд гаргахдаа итгэлтэй байна уу?",
-                  [
-                    {
-                      text: "Үгүй",
-                      onPress: () => console.log("Canceled"),
-                      style: "cancel",
-                    },
-                    {
-                      text: "Тийм",
-                      onPress: () => handleComplaint(complaint.id),
-                    },
-                  ],
-                  { cancelable: false }
-                )
-              }>
+              onPress={() => setModalVisible(true)}>
               <Text
                 style={{
                   color: mainColor,
@@ -186,6 +206,63 @@ export default function Timeline({ complaint, items }) {
                 Гомдол гаргах
               </Text>
             </TouchableOpacity>
+            {/* Modal */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  {/* Modal Header */}
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Гомдлын тайлбар</Text>
+                  </View>
+                  {/* Text Area Input */}
+                  <TextInput
+                    style={[
+                      styles.textArea,
+                      descriptionError && styles.textAreaError, // Highlight error
+                    ]}
+                    placeholder="Тайлбар оруулна уу..."
+                    multiline={true}
+                    numberOfLines={4}
+                    value={description}
+                    onChangeText={(text) => {
+                      setDescription(text);
+                      setDescriptionError(false); // Reset error on input
+                    }}
+                    textAlignVertical="top"
+                  />
+                  {/* Error Message */}
+                  {descriptionError && (
+                    <Text style={styles.errorMessage}>
+                      Тайлбар оруулах шаардлагатай!
+                    </Text>
+                  )}
+                  {/* Modal Buttons */}
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => setModalVisible(false)}>
+                      <Text style={styles.cancelButtonText}>Цуцлах</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.submitButton}
+                      onPress={() => {
+                        if (!description.trim()) {
+                          // If the description is empty or just whitespace
+                          setDescriptionError(true);
+                          return;
+                        }
+                        resendComplaint(); // Submit if valid
+                      }}>
+                      <Text style={styles.submitButtonText}>Илгээх</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </View>
         )}
     </ScrollView>
@@ -308,5 +385,76 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3, // Equivalent to shadow-inner
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent background
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalHeader: {
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: "#f9f9f9",
+    minHeight: 80, // Ensures enough space for the text area
+    textAlignVertical: "top", // Ensures the text starts from the top
+  },
+  textAreaError: {
+    borderColor: "#e74c3c", // Highlight border in red
+  },
+  errorMessage: {
+    color: "#e74c3c",
+    fontSize: 14,
+    marginTop: 5,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  cancelButton: {
+    flex: 1,
+    marginRight: 10,
+    backgroundColor: "#e74c3c",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  submitButton: {
+    flex: 1,
+    marginLeft: 10,
+    backgroundColor: "#27ae60",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
